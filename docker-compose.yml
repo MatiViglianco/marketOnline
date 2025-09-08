@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-change-me}
+      DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-*}
+      DJANGO_RUN_SEED: ${DJANGO_RUN_SEED:-False}
+    volumes:
+      - media:/app/media
+      - staticfiles:/app/staticfiles
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - media:/media
+      - staticfiles:/static
+
+volumes:
+  media:
+  staticfiles:
+

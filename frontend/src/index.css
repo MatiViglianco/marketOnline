@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { @apply bg-gray-50 text-gray-800 transition-colors duration-300; }
+html.dark body { background-color: #0f172a; color: #f3f4f6; }
+
+/* Dark-mode form elements across app (cart + checkout) */
+@layer utilities {
+  /* Quantity input: forzar blanco y ocultar spinners */
+  .quantity-input { background-color: #ffffff !important; color: #ea580c !important; caret-color: #ea580c; }
+  .quantity-input::-webkit-outer-spin-button,
+  .quantity-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .quantity-input[type=number] { -moz-appearance: textfield; }
+  .dark input:not([type=radio]):not([type=checkbox]):not(.quantity-input),
+  .dark textarea,
+  .dark select {
+    background-color: #111827 !important; /* gray-900 */
+    color: #f3f4f6 !important; /* gray-100 */
+    border: 1px solid #374151 !important; /* gray-700 */
+  }
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: #9ca3af !important; /* gray-400 */
+  }
+  .dark input[type=radio],
+  .dark input[type=checkbox] {
+    accent-color: #ea580c; /* orange-600 */
+  }
+  /* Override existing utility classes used en formularios */
+  .dark .dark\:bg-gray-300 { background-color: #111827 !important; }
+  .dark .dark\:border-gray-400 { border-color: #374151 !important; }
+
+  /* Dark mode: quitar borde gris, mantener fondo oscuro y texto naranja */
+  .dark .quantity-input {
+    border: 1px solid #ea580c !important;
+    background-color: #111827 !important; /* fondo centro (oscuro) */
+    color: #ea580c !important;            /* números naranjas */
+    caret-color: #ea580c !important;
+  }
+
+  /* Ocultar spinners de inputs numéricos generales (checkout) */
+  .no-spinner::-webkit-outer-spin-button,
+  .no-spinner::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .no-spinner[type=number] { -moz-appearance: textfield; }
+}
+
+/* Utilidad simple para clamping sin plugin */
+.line-clamp-2{ display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
