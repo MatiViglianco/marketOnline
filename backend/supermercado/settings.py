@@ -102,6 +102,7 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_THROTTLE_RATES': {
         'coupon_validate': '5/min',
+        'orders': '10/min',
     },
 }
 
