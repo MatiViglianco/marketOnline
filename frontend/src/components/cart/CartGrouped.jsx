@@ -108,7 +108,6 @@ export default function CartGrouped({
 
                         className="h-10 w-16"
 
-
                       />
                     </div>
 
