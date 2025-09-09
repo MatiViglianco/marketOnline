@@ -11,8 +11,12 @@ from shop.models import Category, Product, SiteConfig
 def run():
     # Superuser
     User = get_user_model()
-    username = os.getenv("SEED_SUPERUSER_USERNAME", "admin")
-    password = os.getenv("SEED_SUPERUSER_PASSWORD", "change-me")
+    username = os.getenv("SEED_SUPERUSER_USERNAME")
+    password = os.getenv("SEED_SUPERUSER_PASSWORD")
+    if not username or not password:
+        raise ValueError(
+            "SEED_SUPERUSER_USERNAME and SEED_SUPERUSER_PASSWORD must be set"
+        )
     u, created = User.objects.get_or_create(
         username=username,
         defaults={"is_superuser": True, "is_staff": True, "email": "admin@example.com"},
