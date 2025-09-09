@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, forwardRef } from 'react'
 
-export default function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className = '' }) {
+function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className = '' }, ref) {
   const [inner, setInner] = useState(String(value))
   useEffect(() => { setInner(String(value)) }, [value])
 
@@ -23,6 +23,7 @@ export default function QuantityStepper({ value = 1, onDecrement, onIncrement, o
         −
       </button>
       <input
+        ref={ref}
         type="number"
         inputMode="numeric"
         pattern="[0-9]*"
@@ -54,3 +55,5 @@ export default function QuantityStepper({ value = 1, onDecrement, onIncrement, o
     </div>
   )
 }
+
+export default forwardRef(QuantityStepper)
