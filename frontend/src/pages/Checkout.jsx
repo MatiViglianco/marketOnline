@@ -74,8 +74,8 @@ export default function Checkout() {
 
   const couponSavingsLine = useMemo(() => {
     if (estDiscount <= 0) return null
-    if (couponInfo?.type === 'percent') return { label: `${Number(couponInfo.percent || 0)}% OFF${couponInfo?.name ? ` · ${couponInfo.name}` : ''}`, amount: estDiscount }
-    return { label: `Cupón${couponInfo?.name ? ` · ${couponInfo.name}` : ''}`, amount: estDiscount }
+    if (couponInfo?.type === 'percent') return { label: `${Number(couponInfo.percent || 0)}% OFF`, amount: estDiscount }
+    return { label: 'Cupón', amount: estDiscount }
   }, [estDiscount, couponInfo])
 
   // Fix de textos rotos (mojibake) y placeholders

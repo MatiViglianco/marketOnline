@@ -49,7 +49,15 @@ export async function validateCoupon(code) {
     try { err = await r.json() } catch { err = { detail: 'No se pudo validar el cupón' } }
     throw new Error(err.detail || JSON.stringify(err))
   }
-  return r.json()
+  const data = await r.json()
+  return {
+    valid: data.valid,
+    type: data.type,
+    amount: data.amount,
+    percent: data.percent,
+    percent_cap: data.percent_cap,
+    min_subtotal: data.min_subtotal,
+  }
 }
 
 export async function getAnnouncements() {
