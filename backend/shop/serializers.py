@@ -58,6 +58,17 @@ class OrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])
 
+        # Consolidar items por producto sumando cantidades
+        consolidated = {}
+        for item in items_data:
+            pid = item['product_id']
+            consolidated[pid] = consolidated.get(pid, 0) + item['quantity']
+
+        # Validar que las cantidades resultantes sean positivas
+        invalid = [pid for pid, qty in consolidated.items() if qty <= 0]
+        if invalid:
+            raise serializers.ValidationError({'items': f'Cantidad inválida para {", ".join(map(str, invalid))}'})
+
         # Determinar costo de envío y método de entrega
         cfg = SiteConfig.objects.first()
         cfg_shipping = cfg.shipping_cost if cfg else 0
@@ -70,7 +81,7 @@ class OrderSerializer(serializers.ModelSerializer):
             total = 0
 
             # Obtener todos los productos en un solo query
-            product_ids = [item['product_id'] for item in items_data]
+            product_ids = list(consolidated.keys())
             products_qs = Product.objects.select_for_update().filter(id__in=product_ids, is_active=True)
             products = {p.id: p for p in products_qs}
 
@@ -81,9 +92,8 @@ class OrderSerializer(serializers.ModelSerializer):
             order_items = []
             cases = []
 
-            for item in items_data:
-                product = products[item['product_id']]
-                quantity = item['quantity']
+            for pid, quantity in consolidated.items():
+                product = products[pid]
                 if product.stock < quantity:
                     raise serializers.ValidationError({'items': f'Sin stock suficiente para {product.name} (disponible: {product.stock})'})
                 price = product.offer_price if product.offer_price else product.price
