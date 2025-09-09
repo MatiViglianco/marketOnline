@@ -10,6 +10,17 @@ Requisitos:
 - Python 3.10+
 - Node 18+
 
+Configuración inicial:
+
+1. Copiar `.env.example` a `.env` y definir una clave secreta y los hosts permitidos.
+   - Para generar una `SECRET_KEY` segura:
+
+     ```bash
+     python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+     ```
+   - Colocar el valor generado en `DJANGO_SECRET_KEY`.
+   - Configurar `DJANGO_ALLOWED_HOSTS` con una lista de dominios o IPs separados por coma (sin comodines).
+
 Backend (Django + DRF)
 
 1) Instalar dependencias:
