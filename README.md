@@ -78,6 +78,15 @@ Frontend (Vite + React + Tailwind)
 
    npm run dev
 
+Despliegue automático:
+
+- El flujo de trabajo `deploy-frontend.yml` publica el contenido de `frontend/dist`
+  en GitHub Pages cada vez que se hace push a la rama `main`.
+- El flujo `deploy-backend.yml` construye la imagen de Docker y la despliega en
+  Railway usando la CLI. Para que funcione, crea un proyecto en Railway,
+  vincúlalo con `railway init` y añade el token como secreto `RAILWAY_TOKEN` en
+  GitHub.
+
 Flujo de uso del MVP
 
 - Home: lista categorías y productos con búsqueda y filtro por categoría; se pueden agregar productos al carrito.

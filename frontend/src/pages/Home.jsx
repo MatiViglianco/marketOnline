@@ -55,7 +55,10 @@ export default function Home() {
       ordering: orderingMap[sort] || '',
     })
       .then((data) => {
-        setProducts(data.results || [])
+        const results = data.results || []
+        const inStock = results.filter(p => Number(p.stock ?? 0) > 0)
+        const outStock = results.filter(p => Number(p.stock ?? 0) <= 0)
+        setProducts([...inStock, ...outStock])
         setHasNext(Boolean(data.next))
         setHasPrev(Boolean(data.previous))
       })
@@ -73,6 +76,7 @@ export default function Home() {
       setSearch('')
       setQuery('')
       setCategory(null)
+      setSort('relevance')
       setOverlayOpen(false)
       setPage(1)
       // limpiar el state para no repetir al navegar dentro del Home

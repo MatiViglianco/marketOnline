@@ -36,15 +36,15 @@ function Navbar() {
     let cancelled = false
     Promise.all([
       getAnnouncements().catch(() => []),
-      getProducts({ promoted: true }).catch(() => [])
-    ]).then(([a, p]) => { if (!cancelled) { setAnn(a); setPromoted(p) } })
+      getProducts({ promoted: true }).catch(() => ({ results: [] }))
+    ]).then(([a, p]) => { if (!cancelled) { setAnn(a); setPromoted(Array.isArray(p.results) ? p.results : p) } })
     return () => { cancelled = true }
   }, [notifOpen])
 
   return (
-    <nav className="bg-white dark:bg-[#020617] border-b border-gray-200 dark:border-gray-800 shadow-sm sticky top-0 z-20 transition-colors">
+    <nav className="bg-white dark:bg-[#020617] border-b border-gray-200 dark:border-gray-800 shadow-sm fixed top-0 left-0 right-0 z-20 transition-colors">
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between relative">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" state={{ resetSearch: true }} className="flex items-center gap-2">
           <img
             src="/logo-icon.png"
             alt="Naranja Autoservicio"
@@ -153,7 +153,7 @@ function App() {
         <div className="flex-1">
           <BrowserRouter>
             <Navbar />
-            <div className="max-w-7xl mx-auto px-4 py-6">
+            <div className="max-w-7xl mx-auto px-4 pt-24 pb-6">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/checkout" element={<Checkout />} />
