@@ -32,7 +32,9 @@ export default function CartGrouped({
   return (
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
-      <div className="hidden md:grid md:grid-cols-[1fr_100px_140px_140px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
+
+      <div className="hidden md:grid md:grid-cols-[1fr_110px_130px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
+
         <div>Producto</div>
         <div className="text-center">Precio</div>
         <div className="text-center">Cantidad</div>
@@ -66,7 +68,7 @@ export default function CartGrouped({
                   className="relative bg-white dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                 >
                   {/* Desktop: grid de 4 columnas. Mobile: 2 filas */}
-                  <div className="md:grid md:grid-cols-[1fr_100px_140px_140px] md:gap-3 flex flex-col gap-3">
+                  <div className="grid grid-cols-[3fr_1fr] md:grid-cols-[1fr_110px_130px_160px] gap-3 md:gap-3">
                     {/* Columna Producto */}
                     <div className="flex items-start gap-3 min-w-0">
                       {product.image && (
@@ -97,12 +99,15 @@ export default function CartGrouped({
                     </div>
 
                     {/* Cantidad */}
-                    <div className="flex items-center justify-center">
+
+                    <div className="flex items-center justify-end md:justify-center">
+
                       <QuantityStepper
                         value={quantity}
                         onDecrement={() => quantity > 1 && onDec(product.id)}
                         onIncrement={() => quantity < max && onInc(product.id)}
                         onSet={(v) => onSetQty(product.id, v)}
+
                         className="h-9 md:h-10 w-28"
                       />
                     </div>
@@ -136,7 +141,9 @@ export default function CartGrouped({
                   {/* Botón eliminar mobile */}
                   <button
                     onClick={() => onRemove(product.id)}
-                    className="md:hidden absolute top-2 left-2 text-orange-600 hover:text-orange-700"
+
+                    className="md:hidden absolute top-2 right-2 text-orange-600 hover:text-orange-700"
+
                     aria-label="Eliminar producto"
                     title="Eliminar producto"
                   >
