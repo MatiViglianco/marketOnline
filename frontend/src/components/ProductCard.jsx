@@ -1,5 +1,6 @@
 import { useCart } from '../store/cart.jsx'
 import { motion } from 'framer-motion'
+import { useRef } from 'react'
 import CardSpotlight from './ui/CardSpotlight.jsx'
 import ButtonAnimatedGradient from './ui/ButtonAnimatedGradient.jsx'
 import QuantityStepper from './ui/QuantityStepper.jsx'
@@ -10,6 +11,16 @@ export default function ProductCard({ product }) {
   const item = items?.find?.(it => it.product.id === product.id)
   const qty = item?.quantity ?? 0
   const inCart = qty > 0
+  const inputRef = useRef(null)
+
+  const updateQty = (newQty) => {
+    if ((newQty ?? 0) <= 0) {
+      inputRef.current?.blur?.()
+      remove(product.id)
+    } else {
+      setQty(product.id, newQty)
+    }
+  }
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
       <CardSpotlight
@@ -52,16 +63,11 @@ export default function ProductCard({ product }) {
           ) : inCart ? (
             <div className="w-full flex justify-center">
               <QuantityStepper
+                ref={inputRef}
                 value={qty}
-                onDecrement={() => {
-                  if ((qty ?? 0) <= 1) { try { document.activeElement?.blur?.() } catch {} ; remove(product.id) }
-                  else setQty(product.id, qty - 1)
-                }}
+                onDecrement={() => updateQty(qty - 1)}
                 onIncrement={() => add(product, 1)}
-                onSet={(v) => {
-                  if ((v ?? 0) <= 0) { try { document.activeElement?.blur?.() } catch {} ; remove(product.id) }
-                  else setQty(product.id, v)
-                }}
+                onSet={updateQty}
                 className="w-3/5 mx-auto h-12"
               />
             </div>
