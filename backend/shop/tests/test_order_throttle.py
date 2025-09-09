@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.urls import reverse
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 from shop.models import Category, Product
@@ -24,6 +25,8 @@ class OrderThrottleTest(APITestCase):
             "delivery_method": "pickup",
             "items": [{"product_id": self.product.id, "quantity": 1}],
         }
+        self.user = User.objects.create_user("tester", password="pass")
+        self.client.login(username="tester", password="pass")
 
     def test_orders_throttled_after_limit(self):
         for i in range(10):

@@ -1,12 +1,15 @@
 from decimal import Decimal
 
 from django.test import TestCase
+from django.contrib.auth.models import User
 
 from shop.models import Coupon
 
 
 class CouponValidateViewTest(TestCase):
     def setUp(self):
+        self.user = User.objects.create_user("tester", password="pass")
+        self.client.login(username="tester", password="pass")
         self.coupon = Coupon.objects.create(
             code="OFF10",
             type=Coupon.TYPE_FIXED,
@@ -39,3 +42,12 @@ class CouponValidateViewTest(TestCase):
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json(), {"valid": False})
+
+    def test_requires_authentication(self):
+        self.client.logout()
+        r = self.client.post(
+            "/api/coupons/validate/",
+            {"code": "OFF10"},
+            content_type="application/json",
+        )
+        self.assertEqual(r.status_code, 403)

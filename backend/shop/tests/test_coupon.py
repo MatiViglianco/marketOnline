@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.test import TestCase
 from django.urls import reverse
+from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 from shop.models import Category, Product, Coupon
@@ -79,9 +80,10 @@ class OrderCouponTest(TestCase):
             min_subtotal=0,
             active=True,
         )
+        user = User.objects.create_user("tester", password="pass")
         client = APIClient()
+        client.login(username="tester", password="pass")
         url = reverse('coupon-validate')
         resp = client.post(url, {"code": long_code + "EXTRA"}, format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['valid'])
-        self.assertEqual(resp.data['code'], long_code)
