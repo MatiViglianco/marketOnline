@@ -10,6 +10,7 @@ export default function CartGrouped({
   onInc = () => {},
   onDec = () => {},
   onRemove = () => {},
+  onClear = () => {},
   alertMessages = [],
 }) {
   // Agrupar por categoría (name como clave legible; si no hay categoría usa 'Sin categoría')
@@ -52,6 +53,7 @@ export default function CartGrouped({
               const lineTotal = unit * quantity
               const hasOffer = product.offer_price && Number(product.offer_price) < Number(product.price)
               const max = Number(product.stock ?? Infinity)
+              const percentOff = hasOffer ? Math.round((1 - unit / Number(product.price)) * 100) : 0
 
               return (
                 <article key={product.id} className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
@@ -65,7 +67,7 @@ export default function CartGrouped({
                       <div className="min-w-0">
                         {/* Promoción opcional */}
                         {hasOffer && (
-                          <div className="text-[11px] font-semibold text-red-600">35% OFF MAX 6 UNIDADES</div>
+                          <div className="text-[11px] font-semibold text-red-600">{percentOff}% OFF{isFinite(max) ? ` MAX ${max} UNIDADES` : ''}</div>
                         )}
                         <div className="font-medium text-sm md:text-base leading-tight truncate" title={product.name}>{product.name}</div>
                         {product.description && (
@@ -137,9 +139,22 @@ export default function CartGrouped({
 
       {/* Acción final */}
       <div className="flex justify-end pt-2">
-        <button type="button" className="text-red-600 hover:text-red-700 font-semibold uppercase text-sm flex items-center gap-2">
+        <button
+          type="button"
+          onClick={onClear}
+          className="text-red-600 hover:text-red-700 font-semibold uppercase text-sm flex items-center gap-2"
+        >
           <span>Vaciar el carrito</span>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="w-5 h-5"
+          >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M4 7l16 0" />
             <path d="M10 11l0 6" />
