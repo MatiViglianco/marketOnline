@@ -13,7 +13,6 @@ from .serializers import (
     ProductSerializer,
     SiteConfigSerializer,
     OrderSerializer,
-    CouponSerializer,
     AnnouncementSerializer,
 )
 
@@ -69,8 +68,15 @@ class CouponValidateView(APIView):
             c = Coupon.objects.get(code__iexact=code, active=True)
         except Coupon.DoesNotExist:
             return Response({'valid': False}, status=status.HTTP_200_OK)
-        data = CouponSerializer(c).data
-        data.update({'valid': True})
+
+        data = {
+            'valid': True,
+            'type': c.type,
+            'amount': c.amount,
+            'percent': c.percent,
+            'percent_cap': c.percent_cap,
+            'min_subtotal': c.min_subtotal,
+        }
         return Response(data)
 
 
