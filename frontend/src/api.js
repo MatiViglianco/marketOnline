@@ -39,10 +39,16 @@ export async function createOrder(payload) {
 }
 
 export async function validateCoupon(code) {
-  const url = new URL(`${API_URL}/coupons/validate/`)
-  url.searchParams.set('code', code)
-  const r = await fetch(url)
-  if (!r.ok) throw new Error('No se pudo validar el cupón')
+  const r = await fetch(`${API_URL}/coupons/validate/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code }),
+  })
+  if (!r.ok) {
+    let err
+    try { err = await r.json() } catch { err = { detail: 'No se pudo validar el cupón' } }
+    throw new Error(err.detail || JSON.stringify(err))
+  }
   return r.json()
 }
 
