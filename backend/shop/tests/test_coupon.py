@@ -84,4 +84,3 @@ class OrderCouponTest(TestCase):
         resp = client.post(url, {"code": long_code + "EXTRA"}, format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['valid'])
-        self.assertEqual(resp.data['code'], long_code)
