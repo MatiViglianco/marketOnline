@@ -7,8 +7,18 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from django.db import models
 from rest_framework.throttling import ScopedRateThrottle
+from django.core.cache import cache
 
-from .models import Category, Product, SiteConfig, Order, Coupon, Announcement
+from .models import (
+    Category,
+    Product,
+    SiteConfig,
+    Order,
+    Coupon,
+    Announcement,
+    SITE_CONFIG_CACHE_KEY,
+    SITE_CONFIG_CACHE_TIMEOUT,
+)
 from .serializers import (
     CategorySerializer,
     ProductSerializer,
@@ -40,16 +50,19 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 class SiteConfigViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminUser]
     def list(self, request):
-        cfg = SiteConfig.objects.first()
-        if cfg:
-            data = SiteConfigSerializer(cfg).data
-        else:
-            data = {
-                'whatsapp_phone': '',
-                'alias_or_cbu': '',
-                'shipping_cost': '0.00',
-                'updated_at': None,
-            }
+        data = cache.get(SITE_CONFIG_CACHE_KEY)
+        if data is None:
+            cfg = SiteConfig.objects.first()
+            if cfg:
+                data = SiteConfigSerializer(cfg).data
+            else:
+                data = {
+                    'whatsapp_phone': '',
+                    'alias_or_cbu': '',
+                    'shipping_cost': '0.00',
+                    'updated_at': None,
+                }
+            cache.set(SITE_CONFIG_CACHE_KEY, data, SITE_CONFIG_CACHE_TIMEOUT)
         return Response(data)
 
 

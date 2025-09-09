@@ -1,4 +1,10 @@
 from django.db import models
+from django.core.cache import cache
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+
+SITE_CONFIG_CACHE_KEY = 'site_config'
+SITE_CONFIG_CACHE_TIMEOUT = 60 * 5
 
 
 class Category(models.Model):
@@ -126,3 +132,8 @@ class Coupon(models.Model):
 
     def __str__(self):
         return self.code
+
+
+@receiver([post_save, post_delete], sender=SiteConfig)
+def clear_site_config_cache(**kwargs):
+    cache.delete(SITE_CONFIG_CACHE_KEY)
