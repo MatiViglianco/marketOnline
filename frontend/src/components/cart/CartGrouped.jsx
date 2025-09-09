@@ -32,7 +32,9 @@ export default function CartGrouped({
   return (
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
+
       <div className="hidden md:grid md:grid-cols-[1fr_110px_130px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
+
         <div>Producto</div>
         <div className="text-center">Precio</div>
         <div className="text-center">Cantidad</div>
@@ -97,24 +99,23 @@ export default function CartGrouped({
                     </div>
 
                     {/* Cantidad */}
+
                     <div className="flex items-center justify-end md:justify-center">
+
                       <QuantityStepper
                         value={quantity}
                         onDecrement={() => quantity > 1 && onDec(product.id)}
                         onIncrement={() => quantity < max && onInc(product.id)}
                         onSet={(v) => onSetQty(product.id, v)}
-                        className="h-9 md:h-10 w-full md:w-24"
+
+                        className="h-9 md:h-10 w-28"
                       />
                     </div>
                     {/* Total + eliminar */}
-                    <div className="flex items-center justify-end gap-2 col-span-2 md:col-auto">
+                    <div className="flex items-center justify-end gap-2">
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
-                      <button
-                        onClick={() => onRemove(product.id)}
-                        className="hidden md:inline-flex text-orange-600 hover:text-orange-700"
-                        aria-label="Eliminar producto"
-                        title="Eliminar producto"
-                      >
+                      <button onClick={() => onRemove(product.id)} className="hidden md:inline-flex text-orange-600 hover:text-orange-700" aria-label="Eliminar producto" title="Eliminar producto">
+
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M4 7l16 0" />
@@ -124,6 +125,7 @@ export default function CartGrouped({
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                         </svg>
                       </button>
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                     </div>
 
                     {isFinite(max) && quantity >= max && (
@@ -139,7 +141,9 @@ export default function CartGrouped({
                   {/* Botón eliminar mobile */}
                   <button
                     onClick={() => onRemove(product.id)}
+
                     className="md:hidden absolute top-2 right-2 text-orange-600 hover:text-orange-700"
+
                     aria-label="Eliminar producto"
                     title="Eliminar producto"
                   >
