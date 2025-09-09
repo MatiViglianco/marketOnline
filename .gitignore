@@ -1,0 +1,84 @@
+# ---- SO / Editores ----
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.orig
+*.bak
+*.tmp
+*.temp
+*.pid
+.idea/
+.vscode/
+.history/
+*.code-workspace
+*.iml
+
+# ---- Archivos de entorno (mantener solo los ejemplos) ----
+.env
+.env.*
+!.env.example
+
+# ---- Logs ----
+*.log
+vite.err.log
+preview.log
+preview.err.log
+
+# ---- Frontend (Vite/React) ----
+node_modules/
+dist/
+.vite/
+.cache/
+coverage/
+.npm/
+.pnp.*
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+storybook-static/
+
+# Si alguna build cae en subcarpetas explícitas:
+frontend/dist/
+
+# ---- Python / Backend ----
+__pycache__/
+*.py[cod]
+*$py.class
+.eggs/
+*.egg-info/
+pip-wheel-metadata/
+build/
+develop-eggs/
+dist/          # (si usas dist para empaquetar Python)
+.venv/
+venv/
+env/
+
+# Testing / análisis Python
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.pyre/
+.dmypy.json
+.pytype/
+.ruff_cache/
+
+# ---- Django / uploads / DB local ----
+db.sqlite3
+media/
+staticfiles/
+# (si colectas estáticos en 'static/' durante deploy, ignóralo también)
+# static/
+
+# ---- Docker (opcionales) ----
+docker-compose.override.yml
+*.local
+
+# ---- Otros temporales de tu repo (según tu captura) ----
+temp_file.txt
+temp_out.txt
