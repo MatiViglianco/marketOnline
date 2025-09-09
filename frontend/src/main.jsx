@@ -36,8 +36,8 @@ function Navbar() {
     let cancelled = false
     Promise.all([
       getAnnouncements().catch(() => []),
-      getProducts({ promoted: true }).catch(() => [])
-    ]).then(([a, p]) => { if (!cancelled) { setAnn(a); setPromoted(p) } })
+      getProducts({ promoted: true }).catch(() => ({ results: [] }))
+    ]).then(([a, p]) => { if (!cancelled) { setAnn(a); setPromoted(Array.isArray(p.results) ? p.results : p) } })
     return () => { cancelled = true }
   }, [notifOpen])
 

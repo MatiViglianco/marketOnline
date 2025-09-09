@@ -33,10 +33,9 @@ export default function CartGrouped({
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
 
-      <div className="hidden md:grid md:grid-cols-[1fr_110px_130px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
+      <div className="hidden md:grid md:grid-cols-[1fr_130px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
 
         <div>Producto</div>
-        <div className="text-center">Precio</div>
         <div className="text-center">Cantidad</div>
         <div className="text-center">Total</div>
       </div>
@@ -67,10 +66,11 @@ export default function CartGrouped({
                   key={product.id}
                   className="relative bg-white dark:bg-[#020617] border border-gray-200 dark:border-gray-700 rounded-lg p-3"
                 >
-                  {/* Desktop: grid de 4 columnas. Mobile: 2 filas */}
-                  <div className="grid grid-cols-[3fr_1fr] md:grid-cols-[1fr_110px_130px_160px] gap-3 md:gap-3">
+                  {/* Grid: desktop 3 cols; mobile 2x2 */}
+                  <div className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] md:grid-cols-[1fr_130px_160px] md:grid-rows-1 gap-3 md:gap-3">
+
                     {/* Columna Producto */}
-                    <div className="flex items-start gap-3 min-w-0">
+                    <div className="flex items-start gap-3 min-w-0 col-span-2 md:col-span-1">
                       {product.image && (
                         <img src={product.image} alt={product.name} className="w-16 h-16 object-cover rounded" />
                       )}
@@ -86,37 +86,31 @@ export default function CartGrouped({
                       </div>
                     </div>
 
-                    {/* Precio unitario */}
-                    <div className="hidden md:flex items-center justify-center font-semibold text-orange-600">
-                      {hasOffer ? (
-                        <div className="flex flex-col items-start md:items-center">
-                          <span className="text-[11px] text-slate-400 line-through">{formatArs(product.price)}</span>
-                          <span className="text-orange-600">{formatArs(unit)}</span>
-                        </div>
-                      ) : (
-                        <span>{formatArs(unit)}</span>
-                      )}
-                    </div>
 
-                    {/* Cantidad */}
-
-                    <div className="flex items-center justify-end md:justify-center">
-
+                    {/* Cantidad desktop */}
+                    <div className="hidden md:flex items-center justify-center">
                       <QuantityStepper
                         value={quantity}
+                        min={1}
+                        max={max}
                         onDecrement={() => quantity > 1 && onDec(product.id)}
                         onIncrement={() => quantity < max && onInc(product.id)}
                         onSet={(v) => onSetQty(product.id, v)}
-
-                        className="h-9 md:h-10 w-28"
+                        className="h-10 w-24"
                       />
                     </div>
-                    {/* Total + eliminar */}
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
-                      <button onClick={() => onRemove(product.id)} className="hidden md:inline-flex text-orange-600 hover:text-orange-700" aria-label="Eliminar producto" title="Eliminar producto">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                    {/* Total + eliminar desktop */}
+                    <div className="hidden md:flex items-center justify-between gap-2">
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                      <button
+                        onClick={() => onRemove(product.id)}
+                        className="text-orange-600 hover:text-orange-700"
+                        aria-label="Eliminar producto"
+                        title="Eliminar producto"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+
                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M4 7l16 0" />
                           <path d="M10 11l0 6" />
@@ -127,6 +121,24 @@ export default function CartGrouped({
                       </button>
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                     </div>
+
+
+                    {/* Cantidad mobile */}
+                    <QuantityStepper
+                      value={quantity}
+                      min={1}
+                      max={max}
+                      onDecrement={() => quantity > 1 && onDec(product.id)}
+                      onIncrement={() => quantity < max && onInc(product.id)}
+                      onSet={(v) => onSetQty(product.id, v)}
+                      className="md:hidden row-start-2 col-start-1 h-9 w-28"
+                    />
+
+                    {/* Total mobile */}
+                    <div className="md:hidden row-start-2 col-start-2 flex items-center justify-end">
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                    </div>
+
 
                     {isFinite(max) && quantity >= max && (
                       <div className="col-span-full mt-2 rounded-md border border-red-300 dark:border-red-500 bg-white dark:bg-[#020617] text-red-700 dark:text-red-300 px-3 py-2 flex items-center gap-2">
@@ -143,11 +155,11 @@ export default function CartGrouped({
                     onClick={() => onRemove(product.id)}
 
                     className="md:hidden absolute top-2 right-2 text-orange-600 hover:text-orange-700"
-
                     aria-label="Eliminar producto"
                     title="Eliminar producto"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-10 h-10">
+
                       <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                       <path d="M4 7l16 0" />
                       <path d="M10 11l0 6" />
@@ -188,7 +200,7 @@ export default function CartGrouped({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="w-5 h-5"
+            className="w-10 h-10"
           >
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <path d="M4 7l16 0" />
