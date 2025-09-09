@@ -22,7 +22,16 @@ Backend (Django + DRF)
    python manage.py migrate
    python manage.py createsuperuser
 
-3) Ejecutar servidor:
+3) (Opcional) Sembrar datos de ejemplo y crear superusuario automáticamente:
+
+   export DJANGO_SUPERUSER_USERNAME=tuusuario
+   export DJANGO_SUPERUSER_PASSWORD=tucontraseña
+   python manage.py shell -c "import seed; seed.run()"
+
+   Si no se definen las variables, el script solicitará usuario y contraseña de forma interactiva.
+   Por seguridad, el seed no se ejecutará con las credenciales de ejemplo del proyecto.
+
+4) Ejecutar servidor:
 
    python manage.py runserver
 

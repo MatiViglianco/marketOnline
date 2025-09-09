@@ -1,5 +1,7 @@
 from decimal import Decimal
 import io
+import os
+from getpass import getpass
 from urllib.request import urlopen
 
 from django.contrib.auth import get_user_model
@@ -7,11 +9,33 @@ from django.core.files.base import ContentFile
 from shop.models import Category, Product, SiteConfig
 
 
+def _get_credential(env_name: str, prompt: str, secret: bool = False) -> str:
+    value = os.getenv(env_name)
+    if not value:
+        try:
+            value = getpass(prompt) if secret else input(prompt)
+        except EOFError:
+            raise RuntimeError(
+                f"No se pudo obtener {prompt.lower()}. Configure la variable de entorno {env_name}."
+            )
+    return value.strip()
+
+
 def run():
     # Superuser
     User = get_user_model()
-    username = "GeraVinci"
-    password = "1473333"
+    username = _get_credential(
+        "DJANGO_SUPERUSER_USERNAME", "Nombre de usuario del superusuario: "
+    )
+    password = _get_credential(
+        "DJANGO_SUPERUSER_PASSWORD", "Contraseña del superusuario: ", secret=True
+    )
+
+    if not username or not password:
+        raise ValueError("Usuario y contraseña son obligatorios para el superusuario.")
+    if username == "GeraVinci" or password == "1473333":
+        raise ValueError("No se permiten las credenciales por defecto del ejemplo.")
+
     u, created = User.objects.get_or_create(
         username=username,
         defaults={"is_superuser": True, "is_staff": True, "email": "admin@example.com"},
