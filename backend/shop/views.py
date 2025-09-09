@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
+from rest_framework.throttling import ScopedRateThrottle
 from django.db import models
 
 from .models import Category, Product, SiteConfig, Order, Coupon, Announcement
@@ -47,9 +48,13 @@ class SiteConfigViewSet(viewsets.ViewSet):
 class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'orders'
 
 
 class CouponValidateView(APIView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'coupon-validate'
     def get(self, request):
         code = request.query_params.get('code', '').strip()
         if not code:
