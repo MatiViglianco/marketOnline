@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from django.db import models
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Category, Product, SiteConfig, Order, Coupon, Announcement
 from .serializers import (
@@ -19,6 +20,7 @@ from .serializers import (
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
 
 class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -27,9 +29,11 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['category', 'promoted']
     search_fields = ['name', 'description']
+    permission_classes = [AllowAny]
 
 
 class SiteConfigViewSet(viewsets.ViewSet):
+    permission_classes = [AllowAny]
     def list(self, request):
         cfg = SiteConfig.objects.first()
         if cfg:
@@ -47,9 +51,12 @@ class SiteConfigViewSet(viewsets.ViewSet):
 class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class CouponValidateView(APIView):
+    permission_classes = [AllowAny]
+
     def get(self, request):
         code = request.query_params.get('code', '').strip()
         if not code:
@@ -67,6 +74,7 @@ class AnnouncementViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = AnnouncementSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = []
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         from django.utils import timezone
