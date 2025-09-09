@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
-from django.db.models import F, Case, When
+from django.db.models import F, Case, When, IntegerField
 from .models import Category, Product, SiteConfig, Order, OrderItem, Coupon, Announcement
 
 
@@ -94,7 +94,9 @@ class OrderSerializer(serializers.ModelSerializer):
                 cases.append(When(id=product.id, then=F('stock') - quantity))
 
             OrderItem.objects.bulk_create(order_items)
-            Product.objects.filter(id__in=products.keys()).update(stock=Case(*cases, default=F('stock')))
+            Product.objects.filter(id__in=products.keys()).update(
+                stock=Case(*cases, default=F('stock'), output_field=IntegerField())
+            )
 
             # Aplicar cupón si viene
             code = validated_data.pop('coupon_code', '').strip()
@@ -114,7 +116,7 @@ class OrderSerializer(serializers.ModelSerializer):
             order.discount_total = discount
             order.coupon_code = code[:40]
             order.total = total - discount + order.shipping_cost
-            order.save(update_fields=['total'])
+            order.save(update_fields=['total', 'discount_total', 'coupon_code', 'shipping_cost'])
             return order
 
     def validate_coupon_code(self, value):
