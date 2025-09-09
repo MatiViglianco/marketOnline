@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter
 from django.db import models
+from rest_framework.throttling import ScopedRateThrottle
 
 from .models import Category, Product, SiteConfig, Order, Coupon, Announcement
 from .serializers import (
@@ -50,14 +51,17 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 
 
 class CouponValidateView(APIView):
-    def get(self, request):
-        code = request.query_params.get('code', '').strip()
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'coupon_validate'
+
+    def post(self, request):
+        code = request.data.get('code', '').strip()
         if not code:
             return Response({'detail': 'Código requerido'}, status=status.HTTP_400_BAD_REQUEST)
         try:
             c = Coupon.objects.get(code__iexact=code, active=True)
         except Coupon.DoesNotExist:
-            return Response({'valid': False, 'detail': 'Cupón inválido'}, status=status.HTTP_200_OK)
+            return Response({'valid': False}, status=status.HTTP_200_OK)
         data = CouponSerializer(c).data
         data.update({'valid': True})
         return Response(data)
