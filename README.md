@@ -43,8 +43,23 @@ Backend (Django + DRF)
 
    python manage.py runserver
 
+5) Autenticación y API segura:
+
+   Todos los endpoints de la API requieren autenticación mediante cookies de
+   sesión. Un usuario administrador puede obtener credenciales vía el endpoint
+   de login de DRF:
+
+   curl -c cookies.txt -X POST -d "username=<admin>&password=<password>" \
+        http://localhost:8000/api-auth/login/
+
+   Luego, reutilizar la cookie para consumir la API de forma segura:
+
+   curl -b cookies.txt http://localhost:8000/api/products/
+
 Notas:
 - El admin está en /admin. Cargar categorías, productos y la configuración del sitio (SiteConfig) ahí.
+- Algunos endpoints administrativos (por ejemplo, la configuración del sitio) requieren
+  un usuario con permisos de administrador.
 - CORS está habilitado para desarrollo (localhost:5173). Ajustar con la variable `DJANGO_CORS_ALLOWED_ORIGINS` si es necesario.
 
 Frontend (Vite + React + Tailwind)
