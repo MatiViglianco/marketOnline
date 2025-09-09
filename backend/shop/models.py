@@ -33,7 +33,7 @@ class Product(models.Model):
     # Promoción destacada
     promoted = models.BooleanField(default=False, db_index=True)
     promoted_until = models.DateTimeField(null=True, blank=True, db_index=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         ordering = ['name']
