@@ -6,13 +6,14 @@ export async function getCategories() {
   return r.json()
 }
 
-export async function getProducts({ page = 1, search = '', ordering = '', category, page_size } = {}) {
+export async function getProducts({ page = 1, search = '', ordering = '', category, page_size, promoted } = {}) {
   const url = new URL(`${API_URL}/products/`)
   if (page) url.searchParams.set('page', page)
   if (search) url.searchParams.set('search', search)
   if (ordering) url.searchParams.set('ordering', ordering)
   if (category) url.searchParams.set('category', category)
   if (page_size) url.searchParams.set('page_size', page_size)
+  if (promoted) url.searchParams.set('promoted', promoted)
   const r = await fetch(url)
   if (!r.ok) throw new Error('Error al cargar productos')
   return r.json()
