@@ -1,9 +1,11 @@
 import React from 'react'
+import QuantityStepper from '../ui/QuantityStepper.jsx'
 
 // Estructura de carrito agrupado por categoría.
 // Props esperadas:
 // - items: [{ product: {id, name, description, image, price, offer_price, category:{id,name}}, quantity }]
 // - onInc(productId), onDec(productId), onRemove(productId)
+// - onSetQty(productId, quantity)
 // - alertMessages?: array de strings para mostrar debajo del listado
 export default function CartGrouped({
   items = [],
@@ -11,6 +13,7 @@ export default function CartGrouped({
   onDec = () => {},
   onRemove = () => {},
   onClear = () => {},
+  onSetQty = () => {},
   alertMessages = [],
 }) {
   // Agrupar por categoría (name como clave legible; si no hay categoría usa 'Sin categoría')
@@ -90,11 +93,13 @@ export default function CartGrouped({
 
                     {/* Cantidad */}
                     <div className="flex items-center justify-center">
-                      <div className="inline-flex h-9 md:h-10 w-28 items-center justify-between rounded-full bg-orange-600 shadow-sm">
-                        <button aria-label="Disminuir" disabled={quantity <= 1} onClick={() => quantity > 1 && onDec(product.id)} className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed">-</button>
-                        <div className="h-9 md:h-10 w-10 bg-white text-gray-900 flex items-center justify-center font-semibold select-none">{quantity}</div>
-                        <button aria-label="Aumentar" disabled={quantity >= max} onClick={() => quantity < max && onInc(product.id)} className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                      </div>
+                      <QuantityStepper
+                        value={quantity}
+                        onDecrement={() => quantity > 1 && onDec(product.id)}
+                        onIncrement={() => quantity < max && onInc(product.id)}
+                        onSet={(v) => onSetQty(product.id, v)}
+                        className="h-9 md:h-10 w-28"
+                      />
                     </div>
                     {isFinite(max) && quantity >= max && (
                       <div className="col-span-full mt-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 flex items-center gap-2">

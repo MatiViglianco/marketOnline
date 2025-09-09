@@ -228,6 +228,7 @@ export default function Checkout() {
               }}
               onRemove={remove}
               onClear={clear}
+              onSetQty={setQty}
             />
           )}
         </div>
