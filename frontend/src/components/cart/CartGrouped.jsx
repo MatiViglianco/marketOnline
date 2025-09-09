@@ -108,6 +108,7 @@ export default function CartGrouped({
 
                         className="h-10 w-16"
 
+
                       />
                     </div>
 
@@ -215,7 +216,6 @@ export default function CartGrouped({
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
-
             className="w-7 h-7"
 
           >

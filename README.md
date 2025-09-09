@@ -78,6 +78,11 @@ Frontend (Vite + React + Tailwind)
 
    npm run dev
 
+Despliegue automático:
+
+- El flujo de trabajo `deploy-frontend.yml` publica el contenido de `frontend/dist`
+  en GitHub Pages cada vez que se hace push a la rama `main`.
+
 Flujo de uso del MVP
 
 - Home: lista categorías y productos con búsqueda y filtro por categoría; se pueden agregar productos al carrito.
