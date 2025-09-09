@@ -1,9 +1,11 @@
 import React from 'react'
+import QuantityStepper from '../ui/QuantityStepper.jsx'
 
 // Estructura de carrito agrupado por categoría.
 // Props esperadas:
 // - items: [{ product: {id, name, description, image, price, offer_price, category:{id,name}}, quantity }]
 // - onInc(productId), onDec(productId), onRemove(productId)
+// - onSetQty(productId, quantity)
 // - alertMessages?: array de strings para mostrar debajo del listado
 export default function CartGrouped({
   items = [],
@@ -11,6 +13,7 @@ export default function CartGrouped({
   onDec = () => {},
   onRemove = () => {},
   onClear = () => {},
+  onSetQty = () => {},
   alertMessages = [],
 }) {
   // Agrupar por categoría (name como clave legible; si no hay categoría usa 'Sin categoría')
@@ -29,7 +32,7 @@ export default function CartGrouped({
   return (
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
-      <div className="hidden md:grid md:grid-cols-[1fr_100px_140px_140px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-2">
+      <div className="hidden md:grid md:grid-cols-[1fr_100px_140px_140px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
         <div>Producto</div>
         <div className="text-center">Precio</div>
         <div className="text-center">Cantidad</div>
@@ -77,11 +80,11 @@ export default function CartGrouped({
                     </div>
 
                     {/* Precio unitario */}
-                    <div className="md:text-center font-semibold text-gray-700 dark:text-gray-100">
+                    <div className="hidden md:flex items-center justify-center font-semibold text-orange-600">
                       {hasOffer ? (
-                        <div className="inline-flex flex-col items-start md:items-center">
+                        <div className="flex flex-col items-start md:items-center">
                           <span className="text-[11px] text-slate-400 line-through">{formatArs(product.price)}</span>
-                          <span className="text-red-600">{formatArs(unit)}</span>
+                          <span className="text-orange-600">{formatArs(unit)}</span>
                         </div>
                       ) : (
                         <span>{formatArs(unit)}</span>
@@ -90,11 +93,13 @@ export default function CartGrouped({
 
                     {/* Cantidad */}
                     <div className="flex items-center justify-center">
-                      <div className="inline-flex h-9 md:h-10 w-28 items-center justify-between rounded-full bg-orange-600 shadow-sm">
-                        <button aria-label="Disminuir" disabled={quantity <= 1} onClick={() => quantity > 1 && onDec(product.id)} className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed">-</button>
-                        <div className="h-9 md:h-10 w-10 bg-white text-gray-900 flex items-center justify-center font-semibold select-none">{quantity}</div>
-                        <button aria-label="Aumentar" disabled={quantity >= max} onClick={() => quantity < max && onInc(product.id)} className="h-9 md:h-10 w-9 md:w-10 flex items-center justify-center text-white disabled:opacity-40 disabled:cursor-not-allowed">+</button>
-                      </div>
+                      <QuantityStepper
+                        value={quantity}
+                        onDecrement={() => quantity > 1 && onDec(product.id)}
+                        onIncrement={() => quantity < max && onInc(product.id)}
+                        onSet={(v) => onSetQty(product.id, v)}
+                        className="h-9 md:h-10 w-28"
+                      />
                     </div>
                     {isFinite(max) && quantity >= max && (
                       <div className="col-span-full mt-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 flex items-center gap-2">
@@ -108,8 +113,8 @@ export default function CartGrouped({
 
                     {/* Total + eliminar */}
                     <div className="flex items-center justify-end gap-2">
-                      <span className="font-semibold whitespace-nowrap">{formatArs(lineTotal)}</span>
-                      <button onClick={() => onRemove(product.id)} className="text-red-600 hover:text-red-700" aria-label="Eliminar producto" title="Eliminar producto">
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                      <button onClick={() => onRemove(product.id)} className="hidden md:inline-flex text-orange-600 hover:text-orange-700" aria-label="Eliminar producto" title="Eliminar producto">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M4 7l16 0" />
@@ -142,7 +147,7 @@ export default function CartGrouped({
         <button
           type="button"
           onClick={onClear}
-          className="text-red-600 hover:text-red-700 font-semibold uppercase text-sm flex items-center gap-2"
+          className="text-orange-600 hover:text-orange-700 font-semibold uppercase text-sm flex items-center gap-2"
         >
           <span>Vaciar el carrito</span>
           <svg
