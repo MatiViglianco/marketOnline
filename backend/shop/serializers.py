@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.db import transaction
+from django.core.validators import RegexValidator
 from .models import Category, Product, SiteConfig, Order, OrderItem, Coupon, Announcement
 
 
@@ -44,12 +45,18 @@ class OrderItemCreateSerializer(serializers.Serializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemCreateSerializer(many=True)
+    coupon_code = serializers.CharField(
+        max_length=40,
+        required=False,
+        allow_blank=True,
+        validators=[RegexValidator(r'^[A-Za-z0-9_-]*$', 'Código inválido')]
+    )
 
     class Meta:
         model = Order
         fields = [
             'id', 'name', 'phone', 'address', 'notes', 'payment_method', 'delivery_method',
-            'total', 'shipping_cost', 'created_at', 'items'
+            'coupon_code', 'total', 'shipping_cost', 'created_at', 'items'
         ]
         read_only_fields = ['id', 'total', 'shipping_cost', 'created_at']
 
@@ -67,6 +74,7 @@ class OrderSerializer(serializers.ModelSerializer):
         shipping_cost = 0 if delivery_method == 'pickup' else cfg_shipping
 
         with transaction.atomic():
+            code = validated_data.pop('coupon_code', '').strip()
             order = Order.objects.create(shipping_cost=shipping_cost, **validated_data)
             total = 0
             for item in items_data:
@@ -85,7 +93,6 @@ class OrderSerializer(serializers.ModelSerializer):
                 product.save(update_fields=['stock'])
 
             # Aplicar cupón si viene
-            code = self.initial_data.get('coupon_code') or ''
             discount = 0
             if code:
                 try:
@@ -108,7 +115,7 @@ class OrderSerializer(serializers.ModelSerializer):
             order.discount_total = discount
             order.coupon_code = code[:40]
             order.total = total - discount + order.shipping_cost
-            order.save(update_fields=['total'])
+            order.save(update_fields=['total', 'discount_total', 'coupon_code', 'shipping_cost'])
             return order
 
 
