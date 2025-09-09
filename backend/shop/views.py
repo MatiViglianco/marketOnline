@@ -2,7 +2,8 @@ from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
+from rest_framework.pagination import PageNumberPagination
 from django.db import models
 
 from .models import Category, Product, SiteConfig, Order, Coupon, Announcement
@@ -21,12 +22,18 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets
     serializer_class = CategorySerializer
 
 
+class ProductPagination(PageNumberPagination):
+    page_size = 12
+
+
 class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Product.objects.filter(is_active=True).select_related('category')
     serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['category', 'promoted']
     search_fields = ['name', 'description']
+    ordering_fields = ['name', 'price', 'offer_price', 'created_at']
+    pagination_class = ProductPagination
 
 
 class SiteConfigViewSet(viewsets.ViewSet):
