@@ -107,13 +107,10 @@ export default function CartGrouped({
                       />
                     </div>
                     {/* Total + eliminar */}
-                    <div className="flex items-center justify-end md:justify-between gap-2">
-                      <button
-                        onClick={() => onRemove(product.id)}
-                        className="hidden md:inline-flex text-orange-600 hover:text-orange-700"
-                        aria-label="Eliminar producto"
-                        title="Eliminar producto"
-                      >
+                    <div className="flex items-center justify-end gap-2">
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                      <button onClick={() => onRemove(product.id)} className="hidden md:inline-flex text-orange-600 hover:text-orange-700" aria-label="Eliminar producto" title="Eliminar producto">
+
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M4 7l16 0" />
