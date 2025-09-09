@@ -2,7 +2,7 @@ import threading
 from unittest import skipIf
 
 from django.db import close_old_connections, connection
-from django.test import TransactionTestCase
+from django.test import TransactionTestCase, TestCase
 from rest_framework import serializers
 
 from shop.models import Category, Product
@@ -52,3 +52,48 @@ class StockConcurrencyTest(TransactionTestCase):
         self.assertEqual(self.product.stock, 2)
         self.assertEqual(results.count("ok"), 1)
         self.assertEqual(results.count("fail"), 1)
+
+
+class RepeatedProductTest(TestCase):
+    def setUp(self):
+        self.category = Category.objects.create(name="Cat", slug="cat")
+        self.product = Product.objects.create(
+            category=self.category, name="Prod", price=10, stock=5
+        )
+
+    def test_repeated_product_aggregates_quantity(self):
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "delivery",
+            "items": [
+                {"product_id": self.product.id, "quantity": 2},
+                {"product_id": self.product.id, "quantity": 3},
+            ],
+        }
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 0)
+
+    def test_repeated_product_rejected_when_insufficient_stock(self):
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "delivery",
+            "items": [
+                {"product_id": self.product.id, "quantity": 2},
+                {"product_id": self.product.id, "quantity": 4},
+            ],
+        }
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        with self.assertRaises(serializers.ValidationError):
+            serializer.save()
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 5)

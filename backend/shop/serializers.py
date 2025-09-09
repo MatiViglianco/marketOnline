@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from django.db import transaction
+from django.db import transaction, models
 from django.db.models import F, Case, When
+from collections import Counter
 from .models import Category, Product, SiteConfig, Order, OrderItem, Coupon, Announcement
 
 
@@ -69,8 +70,12 @@ class OrderSerializer(serializers.ModelSerializer):
             order = Order.objects.create(shipping_cost=shipping_cost, **validated_data)
             total = 0
 
-            # Obtener todos los productos en un solo query
-            product_ids = [item['product_id'] for item in items_data]
+            # Consolidar cantidades por producto
+            quantities = Counter()
+            for item in items_data:
+                quantities[item['product_id']] += item['quantity']
+
+            product_ids = list(quantities.keys())
             products_qs = Product.objects.select_for_update().filter(id__in=product_ids, is_active=True)
             products = {p.id: p for p in products_qs}
 
@@ -78,23 +83,27 @@ class OrderSerializer(serializers.ModelSerializer):
                 missing = set(product_ids) - set(products.keys())
                 raise serializers.ValidationError({'items': f'Producto {", ".join(map(str, missing))} inválido'})
 
-            order_items = []
             cases = []
+            for pid, quantity in quantities.items():
+                product = products[pid]
+                if product.stock < quantity:
+                    raise serializers.ValidationError({'items': f'Sin stock suficiente para {product.name} (disponible: {product.stock})'})
+                cases.append(When(id=pid, then=F('stock') - quantity))
 
+            order_items = []
             for item in items_data:
                 product = products[item['product_id']]
                 quantity = item['quantity']
-                if product.stock < quantity:
-                    raise serializers.ValidationError({'items': f'Sin stock suficiente para {product.name} (disponible: {product.stock})'})
                 price = product.offer_price if product.offer_price else product.price
                 total += price * quantity
                 order_items.append(
                     OrderItem(order=order, product=product, quantity=quantity, price=price)
                 )
-                cases.append(When(id=product.id, then=F('stock') - quantity))
 
             OrderItem.objects.bulk_create(order_items)
-            Product.objects.filter(id__in=products.keys()).update(stock=Case(*cases, default=F('stock')))
+            Product.objects.filter(id__in=products.keys()).update(
+                stock=Case(*cases, default=F('stock'), output_field=models.IntegerField())
+            )
 
             # Aplicar cupón si viene
             code = validated_data.pop('coupon_code', '').strip()
