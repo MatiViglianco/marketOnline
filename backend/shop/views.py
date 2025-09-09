@@ -54,6 +54,8 @@ class SiteConfigViewSet(viewsets.ViewSet):
 class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'orders'
 
 
 class CouponValidateView(APIView):
