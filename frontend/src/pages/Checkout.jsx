@@ -169,19 +169,22 @@ export default function Checkout() {
     }
   }
 
-  const applyCoupon = async () => {
-    setCouponMessage(''); setCouponInfo(null); setCouponError(false)
-    if (!coupon.trim()) return
-    try {
-      const info = await validateCoupon(coupon.trim())
-      setCouponInfo(info)
-      if (!info.valid) { setCouponError(true); setCouponMessage('Cupón inválido') }
-      else if (subtotal < Number(info.min_subtotal || 0)) { setCouponError(true); setCouponMessage(`Monto mínimo: ${formatArs(Number(info.min_subtotal || 0))}`) }
-      else { setCouponMessage('Cupón aplicado') }
-    } catch {
-      setCouponError(true); setCouponMessage('No se pudo validar el cupón')
+    const applyCoupon = async () => {
+      setCouponMessage(''); setCouponInfo(null); setCouponError(false)
+      if (!coupon.trim()) return
+      try {
+        const info = await validateCoupon(coupon.trim(), subtotal)
+        if (!info.valid) {
+          setCouponError(true)
+          setCouponMessage(info.reason === 'min_subtotal' ? 'Monto mínimo no alcanzado' : 'Cupón inválido')
+        } else {
+          setCouponInfo(info)
+          setCouponMessage('Cupón aplicado')
+        }
+      } catch {
+        setCouponError(true); setCouponMessage('No se pudo validar el cupón')
+      }
     }
-  }
 
   const copyAlias = async () => {
     try {

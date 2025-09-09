@@ -38,11 +38,11 @@ export async function createOrder(payload) {
   return r.json()
 }
 
-export async function validateCoupon(code) {
+export async function validateCoupon(code, subtotal) {
   const r = await fetch(`${API_URL}/coupons/validate/`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ code, subtotal }),
   })
   if (!r.ok) {
     let err

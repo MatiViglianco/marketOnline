@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -69,6 +71,9 @@ class CouponValidateView(APIView):
             c = Coupon.objects.get(code__iexact=code, active=True)
         except Coupon.DoesNotExist:
             return Response({'valid': False}, status=status.HTTP_200_OK)
+        payload_subtotal = Decimal(str(request.data.get('subtotal') or 0))
+        if payload_subtotal < c.min_subtotal:
+            return Response({'valid': False, 'reason': 'min_subtotal'}, status=status.HTTP_200_OK)
         data = CouponSerializer(c).data
         data.update({'valid': True})
         return Response(data)
