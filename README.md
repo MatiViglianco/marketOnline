@@ -23,17 +23,21 @@ Backend (Django + DRF)
    DJANGO_ALLOWED_HOSTS=*
    DJANGO_TIME_ZONE=America/Argentina/Cordoba
    DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-   SEED_SUPERUSER_USERNAME=admin
-   SEED_SUPERUSER_PASSWORD=change-me
+   SEED_SUPERUSER_USERNAME=<admin>
+   SEED_SUPERUSER_PASSWORD=<password-segura>
    SEED_WHATSAPP_PHONE=+5491111111111
    SEED_ALIAS_OR_CBU=alias.cuenta - Nombre Apellido (Banco) - CUIT 20-00000000-0
    DJANGO_RUN_SEED=False
 
-3) Migraciones y usuario admin:
+3) Migraciones y seed de datos:
 
    cd backend
    python manage.py migrate
-   python manage.py createsuperuser
+
+   # Crear superusuario y datos de prueba
+   export SEED_SUPERUSER_USERNAME=<admin>
+   export SEED_SUPERUSER_PASSWORD=<password-segura>
+   python manage.py shell -c "import seed; seed.run()"
 
 4) Ejecutar servidor:
 
