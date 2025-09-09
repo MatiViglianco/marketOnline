@@ -45,12 +45,13 @@ class OrderItemCreateSerializer(serializers.Serializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemCreateSerializer(many=True)
+    coupon_code = serializers.CharField(write_only=True, required=False, allow_blank=True)
 
     class Meta:
         model = Order
         fields = [
             'id', 'name', 'phone', 'address', 'notes', 'payment_method', 'delivery_method',
-            'total', 'shipping_cost', 'created_at', 'items'
+            'total', 'shipping_cost', 'created_at', 'items', 'coupon_code'
         ]
         read_only_fields = ['id', 'total', 'shipping_cost', 'created_at']
 
@@ -58,11 +59,8 @@ class OrderSerializer(serializers.ModelSerializer):
         items_data = validated_data.pop('items', [])
 
         # Determinar costo de envío y método de entrega
-        try:
-            cfg = SiteConfig.objects.first()
-            cfg_shipping = cfg.shipping_cost if cfg else 0
-        except Exception:
-            cfg_shipping = 0
+        cfg = SiteConfig.objects.first()
+        cfg_shipping = cfg.shipping_cost if cfg else 0
 
         delivery_method = validated_data.get('delivery_method', 'delivery')
         shipping_cost = 0 if delivery_method == 'pickup' else cfg_shipping
@@ -99,31 +97,35 @@ class OrderSerializer(serializers.ModelSerializer):
             Product.objects.filter(id__in=products.keys()).update(stock=Case(*cases, default=F('stock')))
 
             # Aplicar cupón si viene
-            code = self.initial_data.get('coupon_code') or ''
+            code = validated_data.pop('coupon_code', '').strip()
             discount = 0
             if code:
-                try:
-                    c = Coupon.objects.get(code__iexact=code.strip(), active=True)
-                    if total >= c.min_subtotal:
-                        if c.type == Coupon.TYPE_FIXED:
-                            discount = min(c.amount, total)
-                        elif c.type == Coupon.TYPE_PERCENT:
-                            raw = total * (c.percent / 100)
-                            cap = c.percent_cap or 0
-                            discount = min(raw, cap) if cap > 0 else raw
-                        elif c.type == Coupon.TYPE_FREE_SHIPPING:
-                            order.shipping_cost = 0
-                    else:
-                        # si no cumple mínimo, ignorar cupón
-                        pass
-                except Coupon.DoesNotExist:
-                    pass
+                c = Coupon.objects.filter(code__iexact=code, active=True).first()
+                if c and total >= c.min_subtotal:
+                    if c.type == Coupon.TYPE_FIXED:
+                        discount = min(c.amount, total)
+                    elif c.type == Coupon.TYPE_PERCENT:
+                        raw = total * (c.percent / 100)
+                        cap = c.percent_cap or 0
+                        discount = min(raw, cap) if cap > 0 else raw
+                    elif c.type == Coupon.TYPE_FREE_SHIPPING:
+                        order.shipping_cost = 0
 
             order.discount_total = discount
             order.coupon_code = code[:40]
             order.total = total - discount + order.shipping_cost
             order.save(update_fields=['total'])
             return order
+
+    def validate_coupon_code(self, value):
+        if not value:
+            return ''
+        code = value.strip()
+        coupon = Coupon.objects.filter(code__iexact=code, active=True).first()
+        if not coupon:
+            raise serializers.ValidationError('Cupón inválido')
+        self._coupon = coupon
+        return code
 
 
 class CouponSerializer(serializers.ModelSerializer):
