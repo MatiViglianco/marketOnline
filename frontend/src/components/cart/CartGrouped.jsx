@@ -154,6 +154,23 @@ export default function CartGrouped({
                     </div>
 
 
+                    {/* Cantidad mobile */}
+                    <QuantityStepper
+                      value={quantity}
+                      min={1}
+                      max={max}
+                      onDecrement={() => quantity > 1 && onDec(product.id)}
+                      onIncrement={() => quantity < max && onInc(product.id)}
+                      onSet={(v) => onSetQty(product.id, v)}
+                      className="md:hidden row-start-2 col-start-1 h-9 w-16"
+                    />
+
+                    {/* Total mobile */}
+                    <div className="md:hidden row-start-2 col-start-2 flex items-center justify-end">
+                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                    </div>
+
+
                     {isFinite(max) && quantity >= max && (
                       <div className="col-span-full mt-2 rounded-md border border-red-300 dark:border-red-500 bg-white dark:bg-[#020617] text-red-700 dark:text-red-300 px-3 py-2 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
