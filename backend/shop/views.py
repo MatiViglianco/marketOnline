@@ -61,7 +61,7 @@ class CouponValidateView(APIView):
     throttle_scope = 'coupon_validate'
 
     def post(self, request):
-        code = request.data.get('code', '').strip()
+        code = request.data.get('code', '').strip()[:40]
         if not code:
             return Response({'detail': 'Código requerido'}, status=status.HTTP_400_BAD_REQUEST)
         try:

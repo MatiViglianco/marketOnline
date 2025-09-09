@@ -57,6 +57,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items', [])
+        code = validated_data.pop('coupon_code', '').strip()[:40]
 
         # Consolidar items por producto sumando cantidades
         consolidated = {}
@@ -77,7 +78,7 @@ class OrderSerializer(serializers.ModelSerializer):
         shipping_cost = 0 if delivery_method == 'pickup' else cfg_shipping
 
         with transaction.atomic():
-            order = Order.objects.create(shipping_cost=shipping_cost, **validated_data)
+            order = Order.objects.create(shipping_cost=shipping_cost, coupon_code='', **validated_data)
             total = 0
 
             # Obtener todos los productos en un solo query
@@ -109,7 +110,6 @@ class OrderSerializer(serializers.ModelSerializer):
             )
 
             # Aplicar cupón si viene
-            code = validated_data.pop('coupon_code', '').strip()
             discount = 0
             if code:
                 c = Coupon.objects.filter(code__iexact=code, active=True).first()
@@ -124,7 +124,7 @@ class OrderSerializer(serializers.ModelSerializer):
                         order.shipping_cost = 0
 
             order.discount_total = discount
-            order.coupon_code = code[:40]
+            order.coupon_code = code
             order.total = total - discount + order.shipping_cost
             order.save(update_fields=['total', 'discount_total', 'coupon_code', 'shipping_cost'])
             return order
@@ -132,7 +132,7 @@ class OrderSerializer(serializers.ModelSerializer):
     def validate_coupon_code(self, value):
         if not value:
             return ''
-        code = value.strip()
+        code = value.strip()[:40]
         coupon = Coupon.objects.filter(code__iexact=code, active=True).first()
         if not coupon:
             raise serializers.ValidationError('Cupón inválido')
