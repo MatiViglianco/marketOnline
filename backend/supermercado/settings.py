@@ -1,15 +1,21 @@
 from pathlib import Path
 import os
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Obtain SECRET_KEY from env and ensure it is overridden
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-secret-key-change-me')
+if SECRET_KEY in ('dev-secret-key-change-me', 'please-change-this'):
+    raise ImproperlyConfigured('DJANGO_SECRET_KEY must be set to a unique value')
 
 # Read DEBUG from env (default False for deploy)
-DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('1', 'true', 'yes')
 
 # Allow overriding hosts via env, default to '*'
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',') if h.strip()]
+if not DEBUG and '*' in ALLOWED_HOSTS:
+    raise ImproperlyConfigured("DJANGO_ALLOWED_HOSTS cannot contain '*' in production")
 
 INSTALLED_APPS = [
     'django.contrib.admin',
