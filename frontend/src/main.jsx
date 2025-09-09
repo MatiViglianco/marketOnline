@@ -138,39 +138,6 @@ function App() {
   return (
     <CartProvider>
       <div className="relative min-h-screen overflow-x-hidden flex flex-col" id="app-root">
-        {/* Normaliza acentos en texto renderizado (workaround mojibake en fuente) */}
-        {(() => {
-          React.useEffect(() => {
-            const map = new Map([
-              ['Tu carrito estǭ vac��o', 'Tu carrito está vacío'],
-              ['TelǸfono', 'Teléfono'],
-              ['Direcci��n', 'Dirección'],
-              ['Ubicaci��n', 'Ubicación'],
-              ['Env��o', 'Envío'],
-              ['Cup��n', 'Cupón'],
-              ['��Hola!', '¡Hola!'],
-              ['abri��', 'abrirá'],
-              ['Ordo��ez', 'Ordoñez'],
-              ['C��rdoba', 'Córdoba'],
-              ['catǭlogo', 'catálogo'],
-              ['Escribe para ver coincidencias�?�', 'Escribe para ver coincidencias…'],
-              ['invǭlido', 'inválido'],
-              ['m��nimo', 'mínimo']
-            ])
-            const container = document.getElementById('app-root')
-            if (!container) return
-            const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
-            const nodes = []
-            while (walker.nextNode()) nodes.push(walker.currentNode)
-            nodes.forEach(node => {
-              let t = node.nodeValue
-              let changed = false
-              map.forEach((v, k) => { if (t.includes(k)) { t = t.replaceAll(k, v); changed = true } })
-              if (changed) node.nodeValue = t
-            })
-          }, [])
-          return null
-        })()}
         {/* Fondo fijo: claro liso, oscuro con grilla + máscara */}
         <div className="pointer-events-none fixed inset-0 z-[-2] w-full h-full bg-transparent dark:bg-slate-950">
           {/* Fondo claro con radial gradient (solo modo claro) */}

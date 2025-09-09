@@ -1,5 +1,5 @@
 // src/pages/Checkout.jsx
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useCart } from '../store/cart.jsx'
 import { createOrder, getSiteConfig, validateCoupon } from '../api.js'
 import { toast } from 'sonner'
@@ -78,38 +78,6 @@ export default function Checkout() {
     return { label: 'Cupón', amount: estDiscount }
   }, [estDiscount, couponInfo])
 
-  // Fix de textos rotos (mojibake) y placeholders
-  const rootRef = useRef(null)
-  useEffect(() => {
-    const fixes = new Map([
-      ['Tu carrito estǭ vac��o', 'Tu carrito está vacío'],
-      ['TelǸfono', 'Teléfono'],
-      ['Direcci��n', 'Dirección'],
-      ['Ubicaci��n', 'Ubicación'],
-      ['Env��o', 'Envío'],
-      ['Cup��n', 'Cupón'],
-      ['Cup��n de descuento', 'Cupón de descuento'],
-      ['��Hola!', '¡Hola!'],
-      ['abri��', 'abrirá'],
-      ['Ordo��ez', 'Ordoñez'],
-      ['C��rdoba', 'Córdoba'],
-    ])
-    const el = rootRef.current
-    if (!el) return
-    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT)
-    const nodes = []
-    while (walker.nextNode()) nodes.push(walker.currentNode)
-    nodes.forEach(n => {
-      let t = n.nodeValue, changed = false
-      fixes.forEach((v, k) => { if (t.includes(k)) { t = t.replaceAll(k, v); changed = true } })
-      if (changed) n.nodeValue = t
-    })
-    el.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(inp => {
-      const ph = inp.getAttribute('placeholder') || ''
-      const fixed = ph.replace('TelǸfono','Teléfono').replace('Direcci��n','Dirección').replace('Cup��n de descuento','Cupón de descuento')
-      if (fixed !== ph) inp.setAttribute('placeholder', fixed)
-    })
-  }, [])
 
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const formatArs = (v) => Number(v).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
@@ -218,7 +186,7 @@ export default function Checkout() {
   )
 
   return (
-    <div ref={rootRef} className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
       {/* IZQUIERDA: Carrito */}
       <div className="
         md:col-span-1 rounded-2xl p-4
