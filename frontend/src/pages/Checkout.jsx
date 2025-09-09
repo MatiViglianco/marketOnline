@@ -4,6 +4,7 @@ import { useCart } from '../store/cart.jsx'
 import { createOrder, getSiteConfig, validateCoupon } from '../api.js'
 import { toast } from 'sonner'
 import ButtonAnimatedGradient from '../components/ui/ButtonAnimatedGradient.jsx'
+import CartGrouped from '../components/cart/CartGrouped.jsx'
 
 export default function Checkout() {
   const { items, setQty, remove, clear, subtotal } = useCart()
@@ -113,20 +114,6 @@ export default function Checkout() {
   const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
   const formatArs = (v) => Number(v).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
 
-  // ===== Cantidad editable =====
-  const clamp = (n, min, max) => Math.min(Math.max(n, min), max)
-  const handleQtyInput = (productId, raw, max) => {
-    if (raw === '') return setQty(productId, '')
-    const val = Number.parseInt(raw, 10)
-    if (Number.isNaN(val)) return
-    setQty(productId, clamp(val, 1, max))
-  }
-  const handleQtyBlur = (productId, current, max) => {
-    const val = Number.parseInt(current, 10)
-    const normalized = Number.isNaN(val) ? 1 : clamp(val, 1, max)
-    setQty(productId, normalized)
-  }
-
   const onSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -205,9 +192,6 @@ export default function Checkout() {
     }
   }
 
-  // Grid de filas del carrito (desktop)
-  const GRID = 'md:grid-cols-[56px_1fr_110px_140px_120px_36px]'
-
   // Toggle pill (switch)
   const TogglePill = ({ options = [], value, onChange }) => (
     <div className="inline-flex items-center gap-1 rounded-full border border-orange-600 p-1 bg-white dark:bg-[#020617] shadow-sm transition-colors">
@@ -233,82 +217,6 @@ export default function Checkout() {
     </div>
   )
 
-  // Control de cantidad
-  const QtyControl = ({ it, max }) => (
-  <div
-    className="
-      rounded-md
-      inline-flex items-stretch overflow-hidden
-      rounded-none                                   /* <-- cuadrado */
-      border border-orange-600
-      bg-white dark:bg-transparent
-      shadow-sm
-    "
-  >
-    <button
-      aria-label="Disminuir"
-      disabled={Number(it.quantity || 1) <= 1}
-      onClick={() =>
-        Number(it.quantity || 1) > 1 &&
-        setQty(it.product.id, Number(it.quantity || 1) - 1)
-      }
-      className="
-        px-4 h-9 text-white bg-orange-600 hover:bg-orange-700
-        disabled:opacity-40 disabled:cursor-not-allowed
-        rounded-none                                  /* <-- cuadrado */
-      "
-    >
-      −
-    </button>
-
-    <input
-      type="number"
-      inputMode="numeric"
-      min={1}
-      max={isFinite(max) ? max : undefined}
-      value={String(it.quantity ?? 1)}
-      onChange={(e) =>
-        handleQtyInput(
-          it.product.id,
-          e.target.value,
-          isFinite(max) ? max : 999999
-        )
-      }
-      onBlur={(e) =>
-        handleQtyBlur(
-          it.product.id,
-          e.target.value,
-          isFinite(max) ? max : 999999
-        )
-      }
-      className="
-        w-12 h-9 text-center font-semibold outline-none
-        border-x border-orange-600 bg-white text-slate-900
-        dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100
-        appearance-none [appearance:textfield] [-moz-appearance:textfield]
-        [&::-webkit-outer-spin-button]:appearance-none
-        [&::-webkit-inner-spin-button]:appearance-none
-        rounded-none                                  /* <-- cuadrado */
-      "
-    />
-
-    <button
-      aria-label="Aumentar"
-      disabled={isFinite(max) && Number(it.quantity || 1) >= max}
-      onClick={() =>
-        (!isFinite(max) || Number(it.quantity || 1) < max) &&
-        setQty(it.product.id, Number(it.quantity || 1) + 1)
-      }
-      className="
-        px-4 h-9 text-white bg-orange-600 hover:bg-orange-700
-        disabled:opacity-40 disabled:cursor-not-allowed
-        rounded-none                                  /* <-- cuadrado */
-      "
-    >
-      +
-    </button>
-  </div>
-)
   return (
     <div ref={rootRef} className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-6">
       {/* IZQUIERDA: Carrito */}
@@ -322,22 +230,8 @@ export default function Checkout() {
           Carrito
         </h3>
 
-        {items.length > 0 && (
-          <>
-            <div className={`hidden md:grid ${GRID} text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-2`}>
-              <div /> <div className="text-left">Producto</div>
-              <div className="text-center">Precio</div>
-              <div className="text-center">Cantidad</div>
-              <div className="text-right">Total</div>
-              <div />
-            </div>
-            <hr className="hidden md:block my-2 border-slate-200 dark:border-slate-700/40" />
-          </>
-        )}
-
-        {/* Filas o empty state */}
         <div className="space-y-2">
-          {items.length === 0 && (
+          {items.length === 0 ? (
             <div className="
               my-4 rounded-xl border border-slate-200 p-10 text-center bg-white shadow-sm
               dark:bg-transparent dark:border-slate-700/60
@@ -353,132 +247,22 @@ export default function Checkout() {
                 CONTINUAR COMPRANDO
               </button>
             </div>
+          ) : (
+            <CartGrouped
+              items={items}
+              onInc={(id) => {
+                const it = items.find(i => i.product.id === id)
+                if (it) setQty(id, Number(it.quantity || 1) + 1)
+              }}
+              onDec={(id) => {
+                const it = items.find(i => i.product.id === id)
+                if (it) setQty(id, Number(it.quantity || 1) - 1)
+              }}
+              onRemove={remove}
+              onClear={clear}
+            />
           )}
-
-          {items.map(it => {
-            const price = Number(it.product.price)
-            const offer = Number(it.product.offer_price ?? price)
-            const unit = offer < price ? offer : price
-            const lineTotal = unit * Number(it.quantity || 1)
-            const hasOffer = offer < price
-            const max = Number(it.product.stock ?? Infinity)
-
-            return (
-              <div key={it.product.id} className="
-                bg-white border border-slate-200 rounded-xl px-3 py-3 overflow-hidden shadow-sm
-                dark:bg-transparent dark:border-slate-700/40
-              ">
-                <div className={`md:grid ${GRID} md:items-center md:gap-3 flex flex-col gap-2`}>
-                  {/* Imagen + nombre */}
-                  <div className="flex items-center gap-3 min-w-0 col-span-2">
-                    {it.product.image && <img src={it.product.image} alt={it.product.name} className="w-10 h-10 md:w-12 md:h-12 object-cover rounded" />}
-                    <div className="min-w-0">
-                      <div className="font-medium text-sm md:text-base truncate" title={it.product.name}>{it.product.name}</div>
-                      <div className="text-[11px] text-gray-500 dark:text-gray-400">Stock: {Number(it.product.stock ?? 0)}</div>
-                    </div>
-                  </div>
-
-                  {/* Precio (solo desktop) */}
-                  <div className="hidden md:block text-center font-semibold text-[15px] md:text-[16px] text-gray-700 dark:text-gray-100 whitespace-nowrap">
-                    {hasOffer ? (
-                      <div>
-                        <div className="text-xs text-slate-400 line-through">{formatArs(price)}</div>
-                        <div className="font-semibold text-orange-600">{formatArs(offer)}</div>
-                      </div>
-                    ) : (
-                      <span className="text-orange-600">{formatArs(price)}</span>
-                    )}
-                  </div>
-
-                  {/* Cantidad (desktop) */}
-                  <div className="hidden md:flex items-center justify-center">
-                    <QtyControl it={it} max={max} />
-                  </div>
-
-                  {/* Total por ítem (desktop) */}
-                  <div className="hidden md:flex items-center justify-end whitespace-nowrap">
-                    <span className="truncate text-[15px] md:text-[16px] text-orange-600">{formatArs(lineTotal)}</span>
-                  </div>
-
-                  {/* Eliminar (desktop) */}
-                  <div className="hidden md:flex items-center justify-center">
-                    <button
-                      type="button"
-                      onClick={() => remove(it.product.id)}
-                      className="text-orange-600 hover:text-orange-700"
-                      aria-label="Eliminar ítem"
-                      title="Eliminar ítem"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M4 7l16 0" />
-                        <path d="M10 11l0 6" />
-                        <path d="M14 11l0 6" />
-                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* ===== MOBILE: SOLO cantidad | total + eliminar ===== */}
-                  <div className="md:hidden grid grid-cols-2 gap-2 w-full">
-                    {/* Cantidad */}
-                    <div className="flex items-center justify-center">
-                      <QtyControl it={it} max={max} />
-                    </div>
-                    {/* Total + eliminar */}
-                    <div className="flex items-center justify-end gap-2">
-                      <span className="font-semibold text-[15px] md:text-[16px] text-orange-600">{formatArs(lineTotal)}</span>
-                      <button onClick={() => remove(it.product.id)} className="text-orange-600 hover:text-orange-700" aria-label="Eliminar ítem" title="Eliminar ítem">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M4 7l16 0" />
-                          <path d="M10 11l0 6" />
-                          <path d="M14 11l0 6" />
-                          <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                          <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                  {/* ===== FIN MOBILE ===== */}
-                </div>
-
-                {/* Alerta máximo */}
-                {isFinite(max) && Number(it.quantity||1) >= max && (
-                  <div className="mt-2 rounded-md bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 px-3 py-2 text-xs md:text-sm flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="shrink-0">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                      <path d="M12 1.67c.955 0 1.845 .467 2.39 1.247l.105 .16l8.114 13.548a2.914 2.914 0 0 1 -2.307 4.363l-.195 .008h-16.225a2.914 2.914 0 0 1 -2.582 -4.2l.099 -.185l8.11 -13.538a2.914 2.914 0 0 1 2.491 -1.403zm.01 13.33l-.127 .007a1 1 0 0 0 0 1.986l.117 .007l.127 -.007a1 1 0 0 0 0 -1.986l-.117 -.007zm-.01 -7a1 1 0 0 0 -.993 .883l-.007 .117v4l.007 .117a1 1 0 0 0 1.986 0l.007 -.117v-4l-.007 -.117a1 1 0 0 0 -.993 -.883z" />
-                    </svg>
-                    <span>Cantidad máxima permitida</span>
-                  </div>
-                )}
-              </div>
-            )
-          })}
         </div>
-
-        {/* Vaciar carrito */}
-        {items.length > 0 && (
-          <div className="flex justify-end items-center gap-2 pt-3">
-            <button
-              type="button"
-              onClick={clear}
-              className="text-orange-600 hover:text-orange-700 font-semibold uppercase text-sm flex items-center gap-2"
-            >
-              <span>VACIAR EL CARRITO</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                <path d="M4 7l16 0" />
-                <path d="M10 11l0 6" />
-                <path d="M14 11l0 6" />
-                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
-                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
-              </svg>
-            </button>
-          </div>
-        )}
 
         {/* Resumen de la compra */}
         <div className="
