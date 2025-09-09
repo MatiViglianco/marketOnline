@@ -23,10 +23,10 @@ class Product(models.Model):
     offer_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     stock = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     # Promoción destacada
-    promoted = models.BooleanField(default=False)
-    promoted_until = models.DateTimeField(null=True, blank=True)
+    promoted = models.BooleanField(default=False, db_index=True)
+    promoted_until = models.DateTimeField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -53,9 +53,9 @@ class SiteConfig(models.Model):
 class Announcement(models.Model):
     title = models.CharField(max_length=140)
     message = models.TextField(blank=True)
-    active = models.BooleanField(default=True)
-    start_at = models.DateTimeField(null=True, blank=True)
-    end_at = models.DateTimeField(null=True, blank=True)
+    active = models.BooleanField(default=True, db_index=True)
+    start_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    end_at = models.DateTimeField(null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -122,7 +122,7 @@ class Coupon(models.Model):
     percent = models.DecimalField(max_digits=5, decimal_places=2, default=0)  # para %
     percent_cap = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # tope del %
     min_subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, db_index=True)
 
     def __str__(self):
         return self.code
