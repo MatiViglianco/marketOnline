@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { getCategories, getProducts } from '../api.js'
 // import CategoryList from '../components/CategoryList.jsx'
@@ -20,6 +20,9 @@ export default function Home() {
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [category, setCategory] = useState(null)
   const [sort, setSort] = useState('relevance')
+  const [page, setPage] = useState(1)
+  const [hasNext, setHasNext] = useState(false)
+  const [hasPrev, setHasPrev] = useState(false)
   
   // Cerrar con tecla Escape cuando el panel está abierto
   useEffect(() => {
@@ -30,14 +33,39 @@ export default function Home() {
   }, [overlayOpen])
 
   useEffect(() => {
-    Promise.all([getCategories(), getProducts({})])
-      .then(([cats, prods]) => {
-        setCategories(cats)
-        setProducts(prods)
-      })
+    getCategories()
+      .then(setCategories)
       .catch(() => setError('No se pudo cargar el catálogo'))
-      .finally(() => setLoading(false))
   }, [])
+
+  useEffect(() => {
+    setLoading(true)
+    const orderingMap = {
+      recent: '-created_at',
+      discount: '-offer_price',
+      price_high: '-price',
+      price_low: 'price',
+      name_az: 'name',
+      name_za: '-name',
+    }
+    getProducts({
+      page,
+      search: query,
+      category,
+      ordering: orderingMap[sort] || '',
+    })
+      .then((data) => {
+        setProducts(data.results || [])
+        setHasNext(Boolean(data.next))
+        setHasPrev(Boolean(data.previous))
+      })
+      .catch(() => setError('No se pudo cargar productos'))
+      .finally(() => setLoading(false))
+  }, [page, query, category, sort])
+
+  useEffect(() => {
+    setPage(1)
+  }, [query, category, sort])
 
   // Resetear buscador al venir desde el logo del navbar
   useEffect(() => {
@@ -46,45 +74,11 @@ export default function Home() {
       setQuery('')
       setCategory(null)
       setOverlayOpen(false)
+      setPage(1)
       // limpiar el state para no repetir al navegar dentro del Home
       navigate('.', { replace: true, state: {} })
     }
   }, [location.state])
-
-  const filtered = useMemo(() => {
-    let list = products
-    if (category) list = list.filter(p => p.category && p.category.id === category)
-    if (query) {
-      const q = query.toLowerCase()
-      list = list.filter(p => p.name.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q))
-    }
-    // Ordenamientos
-    const priceOf = (p) => Number(p.offer_price ?? p.price ?? 0)
-    const hasDiscount = (p) => p.offer_price && Number(p.offer_price) < Number(p.price)
-    const created = (p) => new Date(p.created_at || 0).getTime() || Number(p.id || 0)
-    const byName = (p) => (p.name || '').toLowerCase()
-    switch (sort) {
-      case 'recent':
-        list = [...list].sort((a,b) => created(b) - created(a)); break
-      case 'discount':
-        list = [...list].sort((a,b) => Number(hasDiscount(b)) - Number(hasDiscount(a))); break
-      case 'price_high':
-        list = [...list].sort((a,b) => priceOf(b) - priceOf(a)); break
-      case 'price_low':
-        list = [...list].sort((a,b) => priceOf(a) - priceOf(b)); break
-      case 'name_az':
-        list = [...list].sort((a,b) => byName(a).localeCompare(byName(b))); break
-      case 'name_za':
-        list = [...list].sort((a,b) => byName(b).localeCompare(byName(a))); break
-      default:
-        // relevance: keep API order
-        break
-    }
-    // Siempre: productos con stock primero, sin stock al final, conservando el orden
-    const withStock = list.filter(p => Number(p.stock ?? 0) > 0)
-    const withoutStock = list.filter(p => Number(p.stock ?? 0) <= 0)
-    return [...withStock, ...withoutStock]
-  }, [products, query, category, sort])
 
   if (loading) return <div>Cargando...</div>
   if (error) return <div className="text-red-600">{error}</div>
@@ -188,12 +182,12 @@ export default function Home() {
       </div>
 
       <motion.div variants={listVariants} initial="hidden" animate="show" className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 items-stretch">
-        {filtered.map(p => (
+        {products.map(p => (
           <motion.div key={p.id} variants={itemVariants} className="h-full">
             <ProductCard product={p} />
           </motion.div>
         ))}
-        {filtered.length === 0 && (
+        {products.length === 0 && (
           <div className="col-span-full">
             <div className="rounded-2xl border border-orange-200 dark:border-orange-900/40 bg-white/70 dark:bg-[#020617]/60 backdrop-blur p-6 md:p-8">
               <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 items-center">
@@ -229,6 +223,24 @@ export default function Home() {
           </div>
         )}
       </motion.div>
+
+      <div className="flex justify-center items-center gap-4">
+        <button
+          className="px-4 py-2 border rounded disabled:opacity-50"
+          disabled={!hasPrev}
+          onClick={() => setPage(p => p - 1)}
+        >
+          Anterior
+        </button>
+        <span className="text-sm">Página {page}</span>
+        <button
+          className="px-4 py-2 border rounded disabled:opacity-50"
+          disabled={!hasNext}
+          onClick={() => setPage(p => p + 1)}
+        >
+          Siguiente
+        </button>
+      </div>
     </div>
   )
 }
