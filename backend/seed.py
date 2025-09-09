@@ -1,5 +1,6 @@
 from decimal import Decimal
 import io
+import os
 from urllib.request import urlopen
 
 from django.contrib.auth import get_user_model
@@ -10,8 +11,8 @@ from shop.models import Category, Product, SiteConfig
 def run():
     # Superuser
     User = get_user_model()
-    username = "GeraVinci"
-    password = "1473333"
+    username = os.getenv("SEED_SUPERUSER_USERNAME", "admin")
+    password = os.getenv("SEED_SUPERUSER_PASSWORD", "change-me")
     u, created = User.objects.get_or_create(
         username=username,
         defaults={"is_superuser": True, "is_staff": True, "email": "admin@example.com"},
@@ -24,8 +25,11 @@ def run():
     # Site config
     # Upsert site config with requested data
     cfg, _ = SiteConfig.objects.get_or_create(id=1)
-    cfg.whatsapp_phone = "+5493584414772"
-    cfg.alias_or_cbu = "naranja.ats - Geraldina Vinciguerra (Mercado Pago) - CUIT 27-40679283-3"
+    cfg.whatsapp_phone = os.getenv("SEED_WHATSAPP_PHONE", "+5491111111111")
+    cfg.alias_or_cbu = os.getenv(
+        "SEED_ALIAS_OR_CBU",
+        "alias.cuenta - Nombre Apellido (Banco) - CUIT 20-00000000-0",
+    )
     cfg.shipping_cost = Decimal("1200.00")
     cfg.save()
 

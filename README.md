@@ -16,19 +16,32 @@ Backend (Django + DRF)
 
    pip install -r backend/requirements.txt
 
-2) Migraciones y usuario admin:
+2) Configurar variables de entorno (crear `.env` en la raíz o exportar variables):
+
+   DJANGO_SECRET_KEY=please-change-this
+   DJANGO_DEBUG=False
+   DJANGO_ALLOWED_HOSTS=*
+   DJANGO_TIME_ZONE=America/Argentina/Cordoba
+   DJANGO_CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+   SEED_SUPERUSER_USERNAME=admin
+   SEED_SUPERUSER_PASSWORD=change-me
+   SEED_WHATSAPP_PHONE=+5491111111111
+   SEED_ALIAS_OR_CBU=alias.cuenta - Nombre Apellido (Banco) - CUIT 20-00000000-0
+   DJANGO_RUN_SEED=False
+
+3) Migraciones y usuario admin:
 
    cd backend
    python manage.py migrate
    python manage.py createsuperuser
 
-3) Ejecutar servidor:
+4) Ejecutar servidor:
 
    python manage.py runserver
 
 Notas:
 - El admin está en /admin. Cargar categorías, productos y la configuración del sitio (SiteConfig) ahí.
-- CORS está habilitado para desarrollo (localhost:5173). Ajustar en settings si es necesario.
+- CORS está habilitado para desarrollo (localhost:5173). Ajustar con la variable `DJANGO_CORS_ALLOWED_ORIGINS` si es necesario.
 
 Frontend (Vite + React + Tailwind)
 

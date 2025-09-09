@@ -68,7 +68,7 @@ AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'es-ar'
 
-TIME_ZONE = 'America/Argentina/Cordoba'
+TIME_ZONE = os.getenv('DJANGO_TIME_ZONE', 'America/Argentina/Cordoba')
 
 USE_I18N = True
 
@@ -98,7 +98,11 @@ REST_FRAMEWORK = {
 
 # CORS para desarrollo
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
-    'http://127.0.0.1:5173',
+    origin.strip()
+    for origin in os.getenv(
+        'DJANGO_CORS_ALLOWED_ORIGINS',
+        'http://localhost:5173,http://127.0.0.1:5173',
+    ).split(',')
+    if origin.strip()
 ]
 CORS_ALLOW_CREDENTIALS = False
