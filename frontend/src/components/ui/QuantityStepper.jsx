@@ -1,6 +1,6 @@
 import React, { useEffect, useState, forwardRef } from 'react'
 
-function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className = '' }, ref) {
+function QuantityStepper({ value = 1, min = 1, max = Infinity, onDecrement, onIncrement, onSet, className = '' }, ref) {
   const [inner, setInner] = useState(String(value))
   useEffect(() => { setInner(String(value)) }, [value])
 
@@ -17,7 +17,8 @@ function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className
       <button
         type="button"
         onClick={onDecrement}
-        className="col-span-1 py-2 hover:opacity-90 focus:outline-none"
+        disabled={value <= min}
+        className={["col-span-1 py-2 focus:outline-none", value <= min ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"].join(' ')}
         aria-label="Disminuir"
       >
         −
@@ -27,7 +28,7 @@ function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className
         type="number"
         inputMode="numeric"
         pattern="[0-9]*"
-        min={0}
+        min={min}
         step={1}
         value={inner}
         onChange={(e) => {
@@ -35,8 +36,11 @@ function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className
           if (/^\d*$/.test(raw)) {
             setInner(raw)
             if (raw !== '') {
-              const v = parseInt(raw, 10)
+              let v = parseInt(raw, 10)
+              if (v < min) v = min
+              if (v > max) v = max
               onSet?.(v)
+              if (v !== parseInt(raw, 10)) setInner(String(v))
             }
           }
         }}
@@ -47,7 +51,8 @@ function QuantityStepper({ value = 1, onDecrement, onIncrement, onSet, className
       <button
         type="button"
         onClick={onIncrement}
-        className="col-span-1 py-2 hover:opacity-90 focus:outline-none"
+        disabled={value >= max}
+        className={["col-span-1 py-2 focus:outline-none", value >= max ? "opacity-50 cursor-not-allowed" : "hover:opacity-90"].join(' ')}
         aria-label="Aumentar"
       >
         +
