@@ -2,6 +2,7 @@ asgiref==3.9.1
 black==25.1.0
 click==8.2.1
 Django==4.2.10
+dj-database-url==2.1.0
 django-cors-headers==4.3.1
 django-filter==23.5
 django-storages[boto3]==1.14.6
@@ -28,5 +29,3 @@ ruff==0.12.11
 sqlparse==0.5.3
 typing_extensions==4.15.0
 whitenoise==6.10.0
-cloudinary==1.41.0
-django-cloudinary-storage==0.3.0
