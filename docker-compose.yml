@@ -16,8 +16,10 @@ services:
       DJANGO_DB_USER: ${DJANGO_DB_USER:-postgres}
       DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
       DJANGO_MEDIA_ROOT: ${DJANGO_MEDIA_ROOT:-/app/media}
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME:-}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY:-}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET:-}
     volumes:
-      - media:/app/media
       - staticfiles:/app/staticfiles
     expose:
       - "8000"
@@ -46,11 +48,9 @@ services:
     ports:
       - "80:80"
     volumes:
-      - media:/media
       - staticfiles:/static
 
 volumes:
-  media:
   staticfiles:
   postgres_data:
 

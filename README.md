@@ -29,6 +29,10 @@ Backend (Django + DRF)
    SEED_ALIAS_OR_CBU=alias.cuenta - Nombre Apellido (Banco) - CUIT 20-00000000-0
    DJANGO_RUN_SEED=False
 
+   CLOUDINARY_CLOUD_NAME=<tu-cloud-name>
+   CLOUDINARY_API_KEY=<tu-api-key>
+   CLOUDINARY_API_SECRET=<tu-api-secret>
+
    # Almacenamiento de archivos en S3 (opcional)
    DJANGO_DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
    AWS_ACCESS_KEY_ID=<tu-access-key>
@@ -93,7 +97,9 @@ Despliegue automático:
 - El flujo `deploy-backend.yml` construye la imagen de Docker y la despliega en
   Railway usando la CLI. Para que funcione, crea un proyecto en Railway,
   vincúlalo con `railway init` y añade el token como secreto `RAILWAY_TOKEN` en
-  GitHub.
+  GitHub. Define también en Railway las variables `CLOUDINARY_CLOUD_NAME`,
+  `CLOUDINARY_API_KEY` y `CLOUDINARY_API_SECRET` para que Django pueda
+  autenticarse contra Cloudinary.
 
 
 Flujo de uso del MVP
