@@ -29,6 +29,13 @@ Backend (Django + DRF)
    SEED_ALIAS_OR_CBU=alias.cuenta - Nombre Apellido (Banco) - CUIT 20-00000000-0
    DJANGO_RUN_SEED=False
 
+   # Almacenamiento de archivos en S3 (opcional)
+   DJANGO_DEFAULT_FILE_STORAGE=storages.backends.s3boto3.S3Boto3Storage
+   AWS_ACCESS_KEY_ID=<tu-access-key>
+   AWS_SECRET_ACCESS_KEY=<tu-secret-key>
+   AWS_STORAGE_BUCKET_NAME=<nombre-del-bucket>
+   AWS_S3_REGION_NAME=<region>
+
 3) Migraciones y seed de datos:
 
    cd backend

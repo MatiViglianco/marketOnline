@@ -4,6 +4,7 @@ click==8.2.1
 Django==4.2.10
 django-cors-headers==4.3.1
 django-filter==23.5
+django-storages[boto3]==1.14.6
 djangorestframework==3.14.0
 gunicorn==21.2.0
 iniconfig==2.1.0
