@@ -10,11 +10,29 @@ services:
       DJANGO_DEBUG: ${DJANGO_DEBUG:-False}
       DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-*}
       DJANGO_RUN_SEED: ${DJANGO_RUN_SEED:-False}
+      DJANGO_DB_HOST: ${DJANGO_DB_HOST:-postgres}
+      DJANGO_DB_PORT: ${DJANGO_DB_PORT:-5432}
+      DJANGO_DB_NAME: ${DJANGO_DB_NAME:-postgres}
+      DJANGO_DB_USER: ${DJANGO_DB_USER:-postgres}
+      DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
     volumes:
       - media:/app/media
       - staticfiles:/app/staticfiles
     expose:
       - "8000"
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: ${DJANGO_DB_NAME:-postgres}
+      POSTGRES_USER: ${DJANGO_DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   frontend:
     build:
@@ -33,4 +51,5 @@ services:
 volumes:
   media:
   staticfiles:
+  postgres_data:
 
