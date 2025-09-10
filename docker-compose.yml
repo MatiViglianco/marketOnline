@@ -15,6 +15,7 @@ services:
       DJANGO_DB_NAME: ${DJANGO_DB_NAME:-postgres}
       DJANGO_DB_USER: ${DJANGO_DB_USER:-postgres}
       DJANGO_DB_PASSWORD: ${DJANGO_DB_PASSWORD:-postgres}
+      DJANGO_MEDIA_ROOT: ${DJANGO_MEDIA_ROOT:-/app/media}
     volumes:
       - media:/app/media
       - staticfiles:/app/staticfiles
