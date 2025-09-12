@@ -162,7 +162,7 @@ export default function CartGrouped({
                       onDecrement={() => quantity > 1 && onDec(product.id)}
                       onIncrement={() => quantity < max && onInc(product.id)}
                       onSet={(v) => onSetQty(product.id, v)}
-                      className="min-[1000px]:hidden row-start-2 col-start-1 h-10 !w-5/12 justify-self-start -ml-4 scale-y-110"
+                      className="min-[1000px]:hidden row-start-2 col-start-1 h-10 !w-5/12 justify-self-start ml-4 sm:ml-8 lg:ml-12 scale-y-110"
                     />
 
                     {/* Total mobile */}
