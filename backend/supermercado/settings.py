@@ -1,6 +1,5 @@
 from pathlib import Path
 import os
-
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
@@ -75,7 +74,9 @@ if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=0 if DEBUG else 600,
+
+            conn_max_age=600,
+
             ssl_require=not DEBUG,
         )
     }
