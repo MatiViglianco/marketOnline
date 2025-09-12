@@ -105,14 +105,12 @@ export default function CartGrouped({
                         onDecrement={() => quantity > 1 && onDec(product.id)}
                         onIncrement={() => quantity < max && onInc(product.id)}
                         onSet={(v) => onSetQty(product.id, v)}
-
-                        className="h-10 w-16"
-
+                        className="h-10 w-14 lg:w-16"
                       />
                     </div>
 
                     {/* Total + eliminar desktop */}
-                    <div className="hidden md:flex items-center justify-between gap-2">
+                    <div className="hidden md:flex items-center justify-end gap-2">
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                       <button
                         onClick={() => onRemove(product.id)}
@@ -120,9 +118,7 @@ export default function CartGrouped({
                         aria-label="Eliminar producto"
                         title="Eliminar producto"
                       >
-
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-7 h-7">
-
                           <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                           <path d="M4 7l16 0" />
                           <path d="M10 11l0 6" />
@@ -131,9 +127,7 @@ export default function CartGrouped({
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                         </svg>
                       </button>
-                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                     </div>
-
 
                     {/* Cantidad mobile */}
                     <QuantityStepper
@@ -143,26 +137,7 @@ export default function CartGrouped({
                       onDecrement={() => quantity > 1 && onDec(product.id)}
                       onIncrement={() => quantity < max && onInc(product.id)}
                       onSet={(v) => onSetQty(product.id, v)}
-
-                      className="md:hidden row-start-2 col-start-1 h-9 w-16"
-
-                    />
-
-                    {/* Total mobile */}
-                    <div className="md:hidden row-start-2 col-start-2 flex items-center justify-end">
-                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
-                    </div>
-
-
-                    {/* Cantidad mobile */}
-                    <QuantityStepper
-                      value={quantity}
-                      min={1}
-                      max={max}
-                      onDecrement={() => quantity > 1 && onDec(product.id)}
-                      onIncrement={() => quantity < max && onInc(product.id)}
-                      onSet={(v) => onSetQty(product.id, v)}
-                      className="md:hidden row-start-2 col-start-1 h-9 w-16"
+                      className="md:hidden row-start-2 col-start-1 h-9 w-14"
                     />
 
                     {/* Total mobile */}
