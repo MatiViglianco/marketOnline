@@ -34,6 +34,7 @@ export default function CartGrouped({
       {/* Encabezado (desktop) */}
 
       <div className="hidden min-[1000px]:grid min-[1000px]:grid-cols-[1fr_90px_110px_130px] min-[1200px]:grid-cols-[1fr_110px_140px_160px] text-xs min-[1000px]:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
+
         <div>Producto</div>
         <div className="text-left">Precio</div>
         <div className="text-center">Cantidad</div>
