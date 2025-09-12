@@ -53,6 +53,7 @@ export default function Home() {
       search: query,
       category,
       ordering: orderingMap[sort] || '',
+      page_size: 20,
     })
       .then((data) => {
         const results = data.results || []
@@ -196,7 +197,7 @@ export default function Home() {
             <div className="rounded-2xl border border-orange-200 dark:border-orange-900/40 bg-white/70 dark:bg-[#020617]/60 backdrop-blur p-6 md:p-8">
               <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-6 items-center">
                 <div className="flex justify-center md:justify-start">
-                  <img src="/searchNone.png" alt="Sin resultados" className="w-64 md:w-72 h-auto select-none" />
+                  <img src={`${import.meta.env.BASE_URL}searchNone.png`} alt="Sin resultados" className="w-64 md:w-72 h-auto select-none" />
                 </div>
                 <div>
                   <h3 className="text-xl md:text-2xl font-extrabold text-orange-600 mb-3">
@@ -228,23 +229,25 @@ export default function Home() {
         )}
       </motion.div>
 
-      <div className="flex justify-center items-center gap-4">
-        <button
-          className="px-4 py-2 border rounded disabled:opacity-50"
-          disabled={!hasPrev}
-          onClick={() => setPage(p => p - 1)}
-        >
-          Anterior
-        </button>
-        <span className="text-sm">Página {page}</span>
-        <button
-          className="px-4 py-2 border rounded disabled:opacity-50"
-          disabled={!hasNext}
-          onClick={() => setPage(p => p + 1)}
-        >
-          Siguiente
-        </button>
-      </div>
+      {(hasNext || hasPrev) && (
+        <div className="flex justify-center items-center gap-4">
+          <button
+            className="px-4 py-2 border rounded disabled:opacity-50"
+            disabled={!hasPrev}
+            onClick={() => setPage(p => p - 1)}
+          >
+            Anterior
+          </button>
+          <span className="text-sm">Página {page}</span>
+          <button
+            className="px-4 py-2 border rounded disabled:opacity-50"
+            disabled={!hasNext}
+            onClick={() => setPage(p => p + 1)}
+          >
+            Siguiente
+          </button>
+        </div>
+      )}
     </div>
   )
 }
