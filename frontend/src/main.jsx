@@ -153,7 +153,7 @@ function App() {
           </div>
         </div>
         <div className="flex-1">
-          <BrowserRouter>
+          <BrowserRouter basename={base}>
             <Navbar />
             <div className="max-w-7xl mx-auto px-4 pt-24 pb-6">
               <Routes>
