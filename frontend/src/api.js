@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (import.meta.env.PROD
+    ? 'https://marketonline-production.up.railway.app/api'
+    : 'http://localhost:8000/api')
 
 export async function getCategories() {
   const r = await fetch(`${API_URL}/categories/`)
