@@ -33,11 +33,13 @@ export default function CartGrouped({
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
 
+
       <div className="hidden min-[1000px]:grid min-[1000px]:grid-cols-[1fr_90px_110px_130px] min-[1200px]:grid-cols-[1fr_110px_140px_160px] text-xs min-[1000px]:text-sm font-semibold text-gray-600 dark:text-gray-300 pl-3 pr-2">
         <div>Producto</div>
         <div className="text-left">Precio</div>
         <div className="text-center">Cantidad</div>
         <div className="text-right">Total</div>
+
       </div>
       <hr className="hidden min-[1000px]:block my-2 border-gray-200 dark:border-gray-700" />
 
@@ -123,10 +125,12 @@ export default function CartGrouped({
                     </div>
 
                     {/* Total + eliminar desktop */}
+
                     <div className="hidden min-[1000px]:flex items-center justify-end pr-2 gap-2">
+
                       <button
                         onClick={() => onRemove(product.id)}
-                        className="text-orange-600 hover:text-orange-700"
+                        className="text-orange-600 hover:text-orange-700 ml-auto"
                         aria-label="Eliminar producto"
                         title="Eliminar producto"
                       >
@@ -148,6 +152,7 @@ export default function CartGrouped({
                           <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
                         </svg>
                       </button>
+
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                     </div>
 
