@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import Footer from './components/Footer.jsx'
 import { getAnnouncements, getProducts } from './api.js'
 
+const base = import.meta.env.BASE_URL
+
 function Navbar() {
   const { count } = useCart()
   const [dark, setDark] = React.useState(() => {
@@ -46,15 +48,15 @@ function Navbar() {
       <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between relative">
         <Link to="/" state={{ resetSearch: true }} className="flex items-center gap-2">
           <img
-            src="/logo-icon.png"
+            src={`${base}logo-icon.png`}
             alt="Naranja Autoservicio"
             className="h-12 md:h-14 w-auto"
-            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = '/logo-icon.png.png' }}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = `${base}logo-icon.png` }}
           />
         </Link>
         {/* Logo centrado solo en escritorio */}
         <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 hidden md:block">
-          <img src="/logo-wide.png" alt="Naranja Autoservicio" className="h-12 lg:h-14 w-auto object-contain" />
+          <img src={`${base}logo-wide.png`} alt="Naranja Autoservicio" className="h-12 lg:h-14 w-auto object-contain" />
         </div>
         <div className="flex items-center gap-3">
           <button onClick={() => setDark(d => !d)} className="h-10 w-10 rounded-md flex items-center justify-center bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white transition-colors">
