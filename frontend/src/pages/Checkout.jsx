@@ -209,7 +209,7 @@ export default function Checkout() {
               <p className="text-slate-600 dark:text-slate-300 mb-6">No tenés artículos en tu carrito de compras.</p>
               <button
                 type="button"
-                onClick={() => window.location.assign('/')}
+                onClick={() => window.location.assign(import.meta.env.BASE_URL || '/')}
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500"
               >
                 CONTINUAR COMPRANDO
