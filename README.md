@@ -1,4 +1,4 @@
-Supermercado Monorepo (Backend + Frontend)
+Naranja Autoservicio Monorepo (Backend + Frontend)
 
 Estructura:
 

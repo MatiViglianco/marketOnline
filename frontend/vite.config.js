@@ -4,7 +4,7 @@ import history from 'connect-history-api-fallback'
 
 export default defineConfig({
   appType: 'spa',
-  base: '/marketOnline/',
+  base: '/naranja-autoservicio/',
   plugins: [
     react(),
     {
