@@ -35,7 +35,8 @@ class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets
 
 
 class ProductPagination(PageNumberPagination):
-    page_size = 12
+    page_size = 20
+    page_size_query_param = 'page_size'
 
 
 class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
