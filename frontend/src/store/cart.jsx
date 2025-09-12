@@ -56,8 +56,28 @@ export function CartProvider({ children }) {
 
   const clear = () => { setItems([]); toast.warning('Carrito vaciado') }
 
-  const subtotal = useMemo(() => items.reduce((acc, it) => acc + Number((it.product.offer_price ?? it.product.price)) * it.quantity, 0), [items])
+  const subtotal = useMemo(
+    () => items.reduce((acc, it) => acc + Number((it.product.offer_price ?? it.product.price)) * it.quantity, 0),
+    [items]
+  )
   const count = useMemo(() => items.reduce((acc, it) => acc + it.quantity, 0), [items])
+
+    useEffect(() => {
+    const originalTitle = 'Naranja Autoservicio'
+    const handleVisibility = () => {
+      if (document.hidden && count > 0) {
+        document.title = '¡Volvé por tu carrito!'
+      } else {
+        document.title = originalTitle
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+    handleVisibility()
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      document.title = originalTitle
+    }
+  }, [count])
 
   const value = { items, add, remove, setQty, clear, subtotal, count }
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>
