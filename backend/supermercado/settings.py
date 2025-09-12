@@ -135,7 +135,8 @@ REST_FRAMEWORK = {
     },
 }
 
-# CORS para desarrollo
+# CORS allowed origins; override in production via
+# DJANGO_CORS_ALLOWED_ORIGINS env variable
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
