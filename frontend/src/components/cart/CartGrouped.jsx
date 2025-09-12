@@ -33,11 +33,11 @@ export default function CartGrouped({
     <div className="space-y-6">
       {/* Encabezado (desktop) */}
 
-      <div className="hidden md:grid md:grid-cols-[1fr_100px_130px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
-
+      <div className="hidden md:grid md:grid-cols-[1fr_90px_110px_130px] lg:grid-cols-[1fr_110px_140px_160px] text-xs md:text-sm font-semibold text-gray-600 dark:text-gray-300 px-3">
         <div>Producto</div>
+        <div className="text-left">Precio</div>
         <div className="text-center">Cantidad</div>
-        <div className="text-center">Total</div>
+        <div className="text-left">Total</div>
       </div>
       <hr className="hidden md:block my-2 border-gray-200 dark:border-gray-700" />
 
@@ -68,7 +68,7 @@ export default function CartGrouped({
                 >
 
                   {/* Grid: desktop 4 cols; mobile 2x2 */}
-                  <div className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] md:grid-cols-[1fr_100px_130px_160px] md:grid-rows-1 gap-3 md:gap-3">
+                  <div className="grid grid-cols-[1fr_auto] grid-rows-[auto_auto] md:grid-cols-[1fr_90px_110px_130px] lg:grid-cols-[1fr_110px_140px_160px] md:grid-rows-1 gap-3 md:gap-3">
 
                     {/* Columna Producto */}
                     <div className="flex items-start gap-3 min-w-0 col-span-2 md:col-span-1">
@@ -88,7 +88,7 @@ export default function CartGrouped({
 
 
                     {/* Precio unitario desktop */}
-                    <div className="hidden md:flex flex-col items-center justify-center">
+                    <div className="hidden md:flex flex-col items-start justify-center">
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(unit)}</span>
                       {hasOffer && (
                         <span className="text-xs text-gray-500 line-through whitespace-nowrap">{formatArs(product.price)}</span>
@@ -105,16 +105,16 @@ export default function CartGrouped({
                         onDecrement={() => quantity > 1 && onDec(product.id)}
                         onIncrement={() => quantity < max && onInc(product.id)}
                         onSet={(v) => onSetQty(product.id, v)}
-                        className="h-10 w-14 lg:w-16"
+                        className="h-10 w-12 md:w-14 lg:w-16 xl:w-20"
                       />
                     </div>
 
                     {/* Total + eliminar desktop */}
-                    <div className="hidden md:flex items-center justify-end gap-2">
+                    <div className="hidden md:flex items-center justify-between pr-2">
                       <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
                       <button
                         onClick={() => onRemove(product.id)}
-                        className="text-orange-600 hover:text-orange-700"
+                        className="text-orange-600 hover:text-orange-700 ml-2"
                         aria-label="Eliminar producto"
                         title="Eliminar producto"
                       >
