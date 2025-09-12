@@ -7,6 +7,8 @@ import SortDropdown from '../components/SortDropdown.jsx'
 import ProductCard from '../components/ProductCard.jsx'
 import { motion, AnimatePresence } from 'framer-motion'
 import SearchBar from '../components/SearchBar.jsx'
+import Spinner from '../components/ui/Spinner.jsx'
+import ErrorView from '../components/ui/ErrorView.jsx'
 
 export default function Home() {
   const location = useLocation()
@@ -85,8 +87,8 @@ export default function Home() {
     }
   }, [location.state])
 
-  if (loading) return <div>Cargando...</div>
-  if (error) return <div className="text-red-600">{error}</div>
+  if (loading) return <Spinner />
+  if (error) return <ErrorView message={error} />
 
   const listVariants = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } }
   const itemVariants = { hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0 } }
