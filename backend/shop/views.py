@@ -31,6 +31,7 @@ from .serializers import (
 class CategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = [AllowAny]
 
 
 class ProductPagination(PageNumberPagination):
@@ -40,6 +41,7 @@ class ProductPagination(PageNumberPagination):
 class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Product.objects.filter(is_active=True).select_related('category')
     serializer_class = ProductSerializer
+    permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['category', 'promoted']
     search_fields = ['name', 'description']
