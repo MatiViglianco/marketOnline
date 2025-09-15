@@ -40,13 +40,20 @@ class ProductPagination(PageNumberPagination):
 
 
 class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = Product.objects.filter(is_active=True).select_related('category')
+    queryset = Product.objects.filter(is_active=True).annotate(
+        has_offer=models.Case(
+            models.When(offer_price__isnull=False, then=models.Value(0)),
+            default=models.Value(1),
+            output_field=models.IntegerField(),
+        )
+    ).select_related('category')
     serializer_class = ProductSerializer
     permission_classes = [AllowAny]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_fields = ['category', 'promoted']
     search_fields = ['name', 'description']
-    ordering_fields = ['name', 'price', 'offer_price', 'created_at']
+    ordering_fields = ['name', 'price', 'offer_price', 'created_at', 'has_offer']
+    ordering = ('has_offer', 'offer_price')
     pagination_class = ProductPagination
 
 
