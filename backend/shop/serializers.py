@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.db import transaction
-from django.db.models import F, Case, When, IntegerField
+from django.db.models import F, Case, When, IntegerField, Q
+from django.utils import timezone
 from .models import Category, Product, SiteConfig, Order, OrderItem, Coupon, Announcement
 
 
@@ -112,7 +113,13 @@ class OrderSerializer(serializers.ModelSerializer):
             # Aplicar cupón si viene
             discount = 0
             if code:
-                c = Coupon.objects.filter(code__iexact=code, active=True).first()
+                now = timezone.now()
+                coupon_qs = Coupon.objects.filter(code__iexact=code, active=True)
+                coupon_qs = coupon_qs.filter(
+                    Q(expires_at__isnull=True) | Q(expires_at__gt=now),
+                    Q(usage_limit__isnull=True) | Q(used_count__lt=F('usage_limit')),
+                )
+                c = coupon_qs.first()
                 if c and total >= c.min_subtotal:
                     if c.type == Coupon.TYPE_FIXED:
                         discount = min(c.amount, total)
@@ -122,6 +129,8 @@ class OrderSerializer(serializers.ModelSerializer):
                         discount = min(raw, cap) if cap > 0 else raw
                     elif c.type == Coupon.TYPE_FREE_SHIPPING:
                         order.shipping_cost = 0
+                    if c.usage_limit:
+                        coupon_qs.filter(pk=c.pk).update(used_count=F('used_count') + 1)
 
             order.discount_total = discount
             order.coupon_code = code
@@ -133,7 +142,15 @@ class OrderSerializer(serializers.ModelSerializer):
         if not value:
             return ''
         code = value.strip()[:40]
-        coupon = Coupon.objects.filter(code__iexact=code, active=True).first()
+        now = timezone.now()
+        coupon = (
+            Coupon.objects.filter(code__iexact=code, active=True)
+            .filter(
+                Q(expires_at__isnull=True) | Q(expires_at__gt=now),
+                Q(usage_limit__isnull=True) | Q(used_count__lt=F('usage_limit')),
+            )
+            .first()
+        )
         if not coupon:
             raise serializers.ValidationError('Cupón inválido')
         self._coupon = coupon

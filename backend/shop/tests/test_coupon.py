@@ -4,6 +4,8 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
+from django.utils import timezone
+from datetime import timedelta
 
 from shop.models import Category, Product, Coupon
 from shop.serializers import OrderSerializer
@@ -87,3 +89,55 @@ class OrderCouponTest(TestCase):
         resp = client.post(url, {"code": long_code + "EXTRA"}, format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['valid'])
+
+    def test_expired_coupon_rejected(self):
+        expired = Coupon.objects.create(
+            code="OLD",
+            type=Coupon.TYPE_FIXED,
+            amount=Decimal("5.00"),
+            min_subtotal=0,
+            active=True,
+            expires_at=timezone.now() - timedelta(days=1),
+        )
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "pickup",
+            "items": [{"product_id": self.product.id, "quantity": 1}],
+            "coupon_code": expired.code,
+        }
+        serializer = OrderSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("coupon_code", serializer.errors)
+
+    def test_usage_limit_enforced(self):
+        limited = Coupon.objects.create(
+            code="LIMIT1",
+            type=Coupon.TYPE_FIXED,
+            amount=Decimal("5.00"),
+            min_subtotal=0,
+            active=True,
+            usage_limit=2,
+        )
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "pickup",
+            "items": [{"product_id": self.product.id, "quantity": 1}],
+            "coupon_code": limited.code,
+        }
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        serializer = OrderSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("coupon_code", serializer.errors)
