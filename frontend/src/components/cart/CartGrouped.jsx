@@ -104,7 +104,7 @@ export default function CartGrouped({
 
                     {/* Precio unitario desktop */}
                     <div className="hidden min-[1000px]:flex flex-col items-start justify-center">
-                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(unit)}</span>
+                      <span className={["font-semibold whitespace-nowrap", hasOffer ? 'text-red-600 dark:text-red-500' : 'text-orange-600'].join(' ')}>{formatArs(unit)}</span>
                       {hasOffer && (
                         <span className="text-xs text-gray-500 line-through whitespace-nowrap">{formatArs(product.price)}</span>
                       )}
@@ -127,7 +127,7 @@ export default function CartGrouped({
                     {/* Total + eliminar desktop */}
 
                     <div className="hidden min-[1000px]:flex items-center justify-end pr-2 gap-2">
-                      <span className="font-semibold text-orange-600 whitespace-nowrap">{formatArs(lineTotal)}</span>
+                      <span className={["font-semibold whitespace-nowrap", hasOffer ? 'text-red-600 dark:text-red-500' : 'text-orange-600'].join(' ')}>{formatArs(lineTotal)}</span>
                       <button
                         onClick={() => onRemove(product.id)}
                         className="text-orange-600 hover:text-orange-700"
@@ -167,7 +167,7 @@ export default function CartGrouped({
 
                     {/* Total mobile */}
                     <div className="min-[1000px]:hidden row-start-2 col-start-2 flex items-center justify-end">
-                      <span className="font-semibold text-orange-600 whitespace-nowrap text-lg">{formatArs(lineTotal)}</span>
+                      <span className={["font-semibold whitespace-nowrap text-lg", hasOffer ? 'text-red-600 dark:text-red-500' : 'text-orange-600'].join(' ')}>{formatArs(lineTotal)}</span>
                     </div>
 
 
