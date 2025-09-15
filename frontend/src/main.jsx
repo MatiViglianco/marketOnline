@@ -1,6 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom'
+import { HashRouter, Routes, Route, Link } from 'react-router-dom'
 import Home from './pages/Home.jsx'
 import Checkout from './pages/Checkout.jsx'
 import { CartProvider, useCart } from './store/cart.jsx'
@@ -153,7 +153,7 @@ function App() {
           </div>
         </div>
         <div className="flex-1">
-          <BrowserRouter basename={base}>
+          <HashRouter>
             <Navbar />
             <div className="max-w-7xl mx-auto px-4 pt-24 pb-6">
               <Routes>
@@ -161,7 +161,7 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
               </Routes>
             </div>
-          </BrowserRouter>
+          </HashRouter>
         </div>
         <Footer />
         <Toaster richColors position="bottom-right" />
