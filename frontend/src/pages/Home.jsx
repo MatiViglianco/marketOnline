@@ -44,7 +44,7 @@ export default function Home() {
     setLoading(true)
     const orderingMap = {
       recent: '-created_at',
-      discount: '-offer_price',
+      discount: 'has_offer,offer_price',
       price_high: '-price',
       price_low: 'price',
       name_az: 'name',
