@@ -62,11 +62,18 @@ export function CartProvider({ children }) {
   )
   const count = useMemo(() => items.reduce((acc, it) => acc + it.quantity, 0), [items])
 
-    useEffect(() => {
+  useEffect(() => {
     const originalTitle = 'Naranja Autoservicio'
+    let interval
     const handleVisibility = () => {
+      clearInterval(interval)
       if (document.hidden && count > 0) {
         document.title = '¡Volvé por tu carrito!'
+        let showCartTitle = false
+        interval = setInterval(() => {
+          document.title = showCartTitle ? '¡Volvé por tu carrito!' : originalTitle
+          showCartTitle = !showCartTitle
+        }, 5000)
       } else {
         document.title = originalTitle
       }
@@ -75,6 +82,7 @@ export function CartProvider({ children }) {
     handleVisibility()
     return () => {
       document.removeEventListener('visibilitychange', handleVisibility)
+      clearInterval(interval)
       document.title = originalTitle
     }
   }, [count])
