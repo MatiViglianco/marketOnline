@@ -88,7 +88,7 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 class CouponValidateView(APIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'coupon_validate'
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
         code = request.data.get('code', '').strip()[:40]

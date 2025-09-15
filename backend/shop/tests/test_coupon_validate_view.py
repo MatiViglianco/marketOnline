@@ -46,14 +46,16 @@ class CouponValidateViewTest(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json(), {"valid": False})
 
-    def test_requires_authentication(self):
+    def test_does_not_require_authentication(self):
         self.client.logout()
         r = self.client.post(
             "/api/coupons/validate/",
             {"code": "OFF10"},
             content_type="application/json",
         )
-        self.assertEqual(r.status_code, 403)
+        self.assertEqual(r.status_code, 200)
+        data = r.json()
+        self.assertTrue(data.get("valid"))
 
     def test_expired_coupon_invalid(self):
         expired = Coupon.objects.create(
