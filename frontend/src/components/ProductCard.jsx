@@ -49,7 +49,7 @@ export default function ProductCard({ product }) {
         {product.offer_price && Number(product.offer_price) < Number(product.price) ? (
           <div>
             <div className="text-sm line-through text-slate-400">${Number(product.price).toFixed(2)}</div>
-            <div className="font-bold text-lg text-red-700 dark:text-red-600">${Number(product.offer_price).toFixed(2)}</div>
+            <div className="font-bold text-lg text-red-600 dark:text-red-500">${Number(product.offer_price).toFixed(2)}</div>
           </div>
         ) : (
           <div className="font-bold text-lg text-orange-500">${Number(product.price).toFixed(2)}</div>
