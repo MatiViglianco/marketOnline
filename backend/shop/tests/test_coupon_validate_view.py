@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.utils import timezone
+from datetime import timedelta
 
 from shop.models import Coupon
 
@@ -51,3 +53,26 @@ class CouponValidateViewTest(TestCase):
             content_type="application/json",
         )
         self.assertEqual(r.status_code, 403)
+
+    def test_invalid_when_expired(self):
+        self.coupon.expires_at = timezone.now() - timedelta(days=1)
+        self.coupon.save()
+        r = self.client.post(
+            "/api/coupons/validate/",
+            {"code": "OFF10"},
+            content_type="application/json",
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), {"valid": False})
+
+    def test_invalid_when_usage_limit_reached(self):
+        self.coupon.usage_limit = 1
+        self.coupon.usage_count = 1
+        self.coupon.save()
+        r = self.client.post(
+            "/api/coupons/validate/",
+            {"code": "OFF10"},
+            content_type="application/json",
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json(), {"valid": False})

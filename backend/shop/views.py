@@ -1,13 +1,14 @@
 from rest_framework import viewsets, mixins, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from django.db import models
 from rest_framework.throttling import ScopedRateThrottle
 from django.core.cache import cache
+from django.utils import timezone
 
 from .models import (
     Category,
@@ -86,6 +87,7 @@ class OrderViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 class CouponValidateView(APIView):
     throttle_classes = [ScopedRateThrottle]
     throttle_scope = 'coupon_validate'
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         code = request.data.get('code', '').strip()[:40]
@@ -94,6 +96,12 @@ class CouponValidateView(APIView):
         try:
             c = Coupon.objects.get(code__iexact=code, active=True)
         except Coupon.DoesNotExist:
+            return Response({'valid': False}, status=status.HTTP_200_OK)
+        now = timezone.now()
+        if (
+            (c.expires_at and c.expires_at < now)
+            or (c.usage_limit is not None and c.usage_count >= c.usage_limit)
+        ):
             return Response({'valid': False}, status=status.HTTP_200_OK)
 
         data = {
