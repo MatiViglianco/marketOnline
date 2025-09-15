@@ -133,9 +133,9 @@ class Coupon(models.Model):
     percent_cap = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # tope del %
     min_subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     active = models.BooleanField(default=True, db_index=True)
-    expires_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
     usage_limit = models.PositiveIntegerField(null=True, blank=True)
-    usage_count = models.PositiveIntegerField(default=0)
+    used_count = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.code

@@ -6,6 +6,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from django.db import models
+from django.utils import timezone
 from rest_framework.throttling import ScopedRateThrottle
 from django.core.cache import cache
 from django.utils import timezone
@@ -93,9 +94,16 @@ class CouponValidateView(APIView):
         code = request.data.get('code', '').strip()[:40]
         if not code:
             return Response({'detail': 'Código requerido'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            c = Coupon.objects.get(code__iexact=code, active=True)
-        except Coupon.DoesNotExist:
+        now = timezone.now()
+        c = (
+            Coupon.objects.filter(code__iexact=code, active=True)
+            .filter(
+                models.Q(expires_at__isnull=True) | models.Q(expires_at__gt=now),
+                models.Q(usage_limit__isnull=True) | models.Q(used_count__lt=models.F('usage_limit')),
+            )
+            .first()
+        )
+        if not c:
             return Response({'valid': False}, status=status.HTTP_200_OK)
         now = timezone.now()
         if (

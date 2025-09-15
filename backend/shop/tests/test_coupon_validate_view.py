@@ -54,24 +54,40 @@ class CouponValidateViewTest(TestCase):
         )
         self.assertEqual(r.status_code, 403)
 
-    def test_invalid_when_expired(self):
-        self.coupon.expires_at = timezone.now() - timedelta(days=1)
-        self.coupon.save()
+    def test_expired_coupon_invalid(self):
+        expired = Coupon.objects.create(
+            code="OLD10",
+            type=Coupon.TYPE_FIXED,
+            amount=Decimal("10.00"),
+            percent=0,
+            percent_cap=0,
+            min_subtotal=Decimal("0"),
+            active=True,
+            expires_at=timezone.now() - timedelta(days=1),
+        )
         r = self.client.post(
             "/api/coupons/validate/",
-            {"code": "OFF10"},
+            {"code": expired.code},
             content_type="application/json",
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.json(), {"valid": False})
 
-    def test_invalid_when_usage_limit_reached(self):
-        self.coupon.usage_limit = 1
-        self.coupon.usage_count = 1
-        self.coupon.save()
+    def test_usage_limit_coupon_invalid(self):
+        limited = Coupon.objects.create(
+            code="LIMITED",
+            type=Coupon.TYPE_FIXED,
+            amount=Decimal("10.00"),
+            percent=0,
+            percent_cap=0,
+            min_subtotal=Decimal("0"),
+            active=True,
+            usage_limit=1,
+            used_count=1,
+        )
         r = self.client.post(
             "/api/coupons/validate/",
-            {"code": "OFF10"},
+            {"code": limited.code},
             content_type="application/json",
         )
         self.assertEqual(r.status_code, 200)
