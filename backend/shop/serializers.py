@@ -112,6 +112,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
             # Aplicar cupón si viene
             discount = 0
+            used_coupon = None
             if code:
                 now = timezone.now()
                 coupon_qs = Coupon.objects.filter(code__iexact=code, active=True)
@@ -133,9 +134,11 @@ class OrderSerializer(serializers.ModelSerializer):
                         coupon_qs.filter(pk=c.pk).update(used_count=F('used_count') + 1)
 
             order.discount_total = discount
-            order.coupon_code = code
+            order.coupon_code = code if used_coupon else ''
             order.total = total - discount + order.shipping_cost
             order.save(update_fields=['total', 'discount_total', 'coupon_code', 'shipping_cost'])
+            if used_coupon:
+                Coupon.objects.filter(pk=used_coupon.pk).update(usage_count=F('usage_count') + 1)
             return order
 
     def validate_coupon_code(self, value):
@@ -153,6 +156,11 @@ class OrderSerializer(serializers.ModelSerializer):
         )
         if not coupon:
             raise serializers.ValidationError('Cupón inválido')
+        now = timezone.now()
+        if coupon.expires_at and coupon.expires_at < now:
+            raise serializers.ValidationError('Cupón inválido')
+        if coupon.usage_limit is not None and coupon.usage_count >= coupon.usage_limit:
+            raise serializers.ValidationError('Cupón inválido')
         self._coupon = coupon
         return code
 
@@ -160,7 +168,10 @@ class OrderSerializer(serializers.ModelSerializer):
 class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coupon
-        fields = ['code', 'type', 'amount', 'percent', 'percent_cap', 'min_subtotal', 'active']
+        fields = [
+            'code', 'type', 'amount', 'percent', 'percent_cap', 'min_subtotal',
+            'expires_at', 'usage_limit', 'usage_count', 'active'
+        ]
 
 
 class AnnouncementSerializer(serializers.ModelSerializer):

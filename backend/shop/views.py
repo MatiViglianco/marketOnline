@@ -9,6 +9,7 @@ from django.db import models
 from django.utils import timezone
 from rest_framework.throttling import ScopedRateThrottle
 from django.core.cache import cache
+from django.utils import timezone
 
 from .models import (
     Category,
@@ -103,6 +104,12 @@ class CouponValidateView(APIView):
             .first()
         )
         if not c:
+            return Response({'valid': False}, status=status.HTTP_200_OK)
+        now = timezone.now()
+        if (
+            (c.expires_at and c.expires_at < now)
+            or (c.usage_limit is not None and c.usage_count >= c.usage_limit)
+        ):
             return Response({'valid': False}, status=status.HTTP_200_OK)
 
         data = {
