@@ -5,6 +5,18 @@ from django.utils import timezone
 from .models import Category, Product, SiteConfig, Order, OrderItem, Coupon, Announcement
 
 
+def get_valid_coupon_qs(code):
+    """Return a queryset with coupons valid for the given code."""
+    if not code:
+        return Coupon.objects.none()
+    now = timezone.now()
+    coupon_qs = Coupon.objects.filter(code__iexact=code, active=True)
+    return coupon_qs.filter(
+        Q(expires_at__isnull=True) | Q(expires_at__gt=now),
+        Q(usage_limit__isnull=True) | Q(used_count__lt=F("usage_limit")),
+    )
+
+
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -113,25 +125,24 @@ class OrderSerializer(serializers.ModelSerializer):
             # Aplicar cupón si viene
             discount = 0
             if code:
-                now = timezone.now()
-                coupon_qs = Coupon.objects.filter(code__iexact=code, active=True)
-                coupon_qs = coupon_qs.filter(
-                    Q(expires_at__isnull=True) | Q(expires_at__gt=now),
-                    Q(usage_limit__isnull=True) | Q(used_count__lt=F('usage_limit')),
-                )
+                coupon_qs = get_valid_coupon_qs(code)
                 c = coupon_qs.first()
                 if c and total >= c.min_subtotal:
-                    if c.type == Coupon.TYPE_FIXED:
-                        discount = min(c.amount, total)
-                    elif c.type == Coupon.TYPE_PERCENT:
-                        raw = total * (c.percent / 100)
-                        cap = c.percent_cap or 0
-                        discount = min(raw, cap) if cap > 0 else raw
-                    elif c.type == Coupon.TYPE_FREE_SHIPPING:
-                        order.shipping_cost = 0
-                    if c.usage_limit:
-                        coupon_qs.filter(pk=c.pk).update(used_count=F('used_count') + 1)
-                    order.coupon_code = code
+                    updated = 1
+                    if c.usage_limit is not None:
+                        updated = coupon_qs.filter(
+                            pk=c.pk, used_count__lt=F("usage_limit")
+                        ).update(used_count=F("used_count") + 1)
+                    if updated == 1:
+                        if c.type == Coupon.TYPE_FIXED:
+                            discount = min(c.amount, total)
+                        elif c.type == Coupon.TYPE_PERCENT:
+                            raw = total * (c.percent / 100)
+                            cap = c.percent_cap or 0
+                            discount = min(raw, cap) if cap > 0 else raw
+                        elif c.type == Coupon.TYPE_FREE_SHIPPING:
+                            order.shipping_cost = 0
+                        order.coupon_code = code
 
             order.discount_total = discount
             order.total = total - discount + order.shipping_cost
@@ -142,21 +153,8 @@ class OrderSerializer(serializers.ModelSerializer):
         if not value:
             return ''
         code = value.strip()[:40]
-        now = timezone.now()
-        coupon = (
-            Coupon.objects.filter(code__iexact=code, active=True)
-            .filter(
-                Q(expires_at__isnull=True) | Q(expires_at__gt=now),
-                Q(usage_limit__isnull=True) | Q(used_count__lt=F('usage_limit')),
-            )
-            .first()
-        )
+        coupon = get_valid_coupon_qs(code).first()
         if not coupon:
-            raise serializers.ValidationError('Cupón inválido')
-        now = timezone.now()
-        if coupon.expires_at and coupon.expires_at < now:
-            raise serializers.ValidationError('Cupón inválido')
-        if coupon.usage_limit is not None and coupon.used_count >= coupon.usage_limit:
             raise serializers.ValidationError('Cupón inválido')
         self._coupon = coupon
         return code
