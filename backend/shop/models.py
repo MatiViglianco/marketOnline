@@ -143,6 +143,27 @@ def clear_site_config_cache(**kwargs):
     cache.delete(SITE_CONFIG_CACHE_KEY)
 
 
+@receiver(post_delete, sender=Category)
+def delete_category_image_on_delete(sender, instance, **kwargs):
+    """Ensure images are removed from Cloudinary when a category is deleted."""
+    if instance.image:
+        instance.image.delete(save=False)
+
+
+@receiver(pre_save, sender=Category)
+def delete_old_category_image_on_change(sender, instance, **kwargs):
+    """Delete old Cloudinary image when a category image is updated."""
+    if not instance.pk:
+        return
+    try:
+        old_image = Category.objects.get(pk=instance.pk).image
+    except Category.DoesNotExist:
+        return
+    new_image = instance.image
+    if old_image and old_image != new_image:
+        old_image.delete(save=False)
+
+
 @receiver(post_delete, sender=Product)
 def delete_product_image_on_delete(sender, instance, **kwargs):
     """Ensure images are removed from Cloudinary when a product is deleted."""
