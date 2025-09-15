@@ -309,20 +309,25 @@ export default function Checkout() {
               <input name="name" value={form.name} onChange={onChange} className="border rounded px-3 py-2 border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" placeholder="Nombre" required />
               <input name="phone" value={form.phone} onChange={onChange} className="border rounded px-3 py-2 border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" placeholder="Teléfono" required />
             </div>
-            {form.delivery_method === 'delivery' ? (
+            <div className="relative">
               <input
                 name="address"
                 value={form.address}
                 onChange={onChange}
-                className="border rounded px-3 py-2 w-full border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+                disabled={form.delivery_method === 'pickup'}
+                className={[
+                  'border rounded px-3 py-2 w-full border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100',
+                  form.delivery_method === 'pickup' ? 'opacity-50 blur-[1px]' : ''
+                ].join(' ')}
                 placeholder="Dirección"
-                required
+                required={form.delivery_method === 'delivery'}
               />
-            ) : (
-              <p className="text-sm text-slate-600 dark:text-slate-300 px-1">
-                No es necesaria la dirección para retiro en tienda.
-              </p>
-            )}
+              {form.delivery_method === 'pickup' && (
+                <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-sm text-slate-600 dark:text-slate-300 bg-white/70 dark:bg-gray-900/70 rounded">
+                  No es necesaria la dirección para retiro en tienda.
+                </div>
+              )}
+            </div>
             <textarea name="notes" value={form.notes} onChange={onChange} className="border rounded px-3 py-2 w-full border-gray-300 bg-white text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100" placeholder="Notas (opcional)" />
 
             <div className="flex items-center gap-4">

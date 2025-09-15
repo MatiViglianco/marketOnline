@@ -173,7 +173,7 @@ export default function Home() {
                           {p.image ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" /> : null}
                         </div>
                         <div className="text-sm font-semibold truncate">{p.name}</div>
-                        <div className="text-xs text-slate-500">${Number(p.offer_price ?? p.price).toFixed(2)}</div>
+                        <div className={["text-xs", p.offer_price && Number(p.offer_price) < Number(p.price) ? 'text-red-600 dark:text-red-500' : 'text-slate-500'].join(' ')}>${Number(p.offer_price ?? p.price).toFixed(2)}</div>
                       </button>
                     ))}
                   {products.filter(p => (p.name + ' ' + (p.description || '')).toLowerCase().includes(search.toLowerCase())).length === 0 && (
