@@ -108,7 +108,7 @@ class CouponValidateView(APIView):
         now = timezone.now()
         if (
             (c.expires_at and c.expires_at < now)
-            or (c.usage_limit is not None and c.usage_count >= c.usage_limit)
+            or (c.usage_limit is not None and c.used_count >= c.usage_limit)
         ):
             return Response({'valid': False}, status=status.HTTP_200_OK)
 

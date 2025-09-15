@@ -35,6 +35,7 @@ class CouponValidateViewTest(TestCase):
         self.assertEqual(set(data.keys()), expected_keys)
         self.assertNotIn("active", data)
         self.assertNotIn("code", data)
+        self.assertNotIn("used_count", data)
 
     def test_invalid_coupon_response(self):
         r = self.client.post(
