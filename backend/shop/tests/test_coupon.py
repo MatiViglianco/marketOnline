@@ -3,7 +3,10 @@ from decimal import Decimal
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
+from django.utils import timezone
+from rest_framework import serializers
 from rest_framework.test import APIClient
+from datetime import timedelta
 
 from shop.models import Category, Product, Coupon
 from shop.serializers import OrderSerializer
@@ -87,3 +90,52 @@ class OrderCouponTest(TestCase):
         resp = client.post(url, {"code": long_code + "EXTRA"}, format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['valid'])
+
+    def test_coupon_expired_invalid(self):
+        self.coupon.expires_at = timezone.now() - timedelta(days=1)
+        self.coupon.save()
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "pickup",
+            "items": [{"product_id": self.product.id, "quantity": 2}],
+            "coupon_code": "OFF5",
+        }
+        serializer = OrderSerializer(data=data)
+        with self.assertRaises(serializers.ValidationError):
+            serializer.is_valid(raise_exception=True)
+
+    def test_coupon_usage_limit_invalid(self):
+        self.coupon.usage_limit = 1
+        self.coupon.usage_count = 1
+        self.coupon.save()
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "pickup",
+            "items": [{"product_id": self.product.id, "quantity": 2}],
+            "coupon_code": "OFF5",
+        }
+        serializer = OrderSerializer(data=data)
+        with self.assertRaises(serializers.ValidationError):
+            serializer.is_valid(raise_exception=True)
+
+    def test_coupon_usage_count_incremented(self):
+        data = {
+            "name": "John",
+            "phone": "123",
+            "address": "street",
+            "payment_method": "cash",
+            "delivery_method": "pickup",
+            "items": [{"product_id": self.product.id, "quantity": 2}],
+            "coupon_code": "OFF5",
+        }
+        serializer = OrderSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        self.coupon.refresh_from_db()
+        self.assertEqual(self.coupon.usage_count, 1)
